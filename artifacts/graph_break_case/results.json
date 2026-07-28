@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "environment": {
+    "torch": "2.12.0+cu130",
+    "device": "cpu",
+    "device_name": "CPU"
+  },
+  "case": "data_dependent_python_branch",
+  "original": {
+    "implementation": "PythonDataDependentBranch",
+    "positive_correct": true,
+    "negative_correct": true,
+    "graph_count": 3,
+    "fullgraph_failure": {
+      "exception_type": "Unsupported",
+      "reason": "Data-dependent branching"
+    }
+  },
+  "fixed": {
+    "implementation": "CondDataDependentBranch",
+    "positive_correct": true,
+    "negative_correct": true,
+    "graph_count": 1,
+    "fullgraph": true
+  }
+}

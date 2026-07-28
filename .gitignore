@@ -1,0 +1,41 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Compiler and profiler caches can be large and machine-specific.
+torch_compile_debug/
+torchinductor_*/
+triton_*/
+*.nsys-rep
+*.ncu-rep
+
+# Keep generated runs local. Curated small samples can be force-added.
+artifacts/*
+!artifacts/sample_cpu/
+!artifacts/sample_cpu/**
+!artifacts/sample_gpu/
+!artifacts/sample_gpu/**
+!artifacts/graph_break_case/
+!artifacts/graph_break_case/**
+!artifacts/sample_mlp_gpu/
+!artifacts/sample_mlp_gpu/**
+
+# LaTeX build products; retain the checked-in guide PDF.
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.toc
+
+# Private planning material; the public roadmap lives in README.md.
+torchcompile_lab_guide.tex
+TorchCompile_Lab_Implementation_Guide.pdf

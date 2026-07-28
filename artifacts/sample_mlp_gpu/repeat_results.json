@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-07-28T00:37:01.804890+00:00",
+  "environment": {
+    "python": "3.12.12",
+    "platform": "Linux-7.0.0-28-generic-x86_64-with-glibc2.39",
+    "torch": "2.12.0+cu130",
+    "torch_cuda_runtime": "13.0",
+    "device": "cuda",
+    "cuda_available": true,
+    "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+    "compute_capability": [
+      12,
+      0
+    ]
+  },
+  "experiment": {
+    "workload": "GatedMLP",
+    "shape": [
+      4,
+      128,
+      768
+    ],
+    "model_dim": 768,
+    "hidden_dim": 2048,
+    "parameter_count": 4718592,
+    "dtype": "float16",
+    "seed": 0,
+    "warmup": 20,
+    "iterations": 100,
+    "fullgraph": true,
+    "isolated_inductor_cache": true
+  },
+  "correctness": {
+    "allclose": true,
+    "atol": 0.02,
+    "rtol": 0.02,
+    "max_abs_error": 0.000244140625,
+    "mean_abs_error": 2.920465703937225e-05
+  },
+  "graph_capture": {
+    "graph_count": 1,
+    "backend": "custom eager backend used only for inspection"
+  },
+  "timing": {
+    "eager": {
+      "median_ms": 0.21618749815388583,
+      "p90_ms": 0.23302529953070916,
+      "min_ms": 0.2111670037265867,
+      "max_ms": 0.336886994773522
+    },
+    "compiled": {
+      "first_call_ms": 1542.4333060000208,
+      "median_ms": 0.26736300060292706,
+      "p90_ms": 0.4131006979150698,
+      "min_ms": 0.2462170014041476,
+      "max_ms": 0.5083819996798411
+    },
+    "steady_state_speedup": 0.808591681221276,
+    "break_even_calls": null
+  }
+}

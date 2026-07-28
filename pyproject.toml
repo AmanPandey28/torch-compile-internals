@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "torchcompile-lab"
+version = "0.2.0"
+description = "Hands-on experiments for learning torch.compile and model optimization"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Aman Pandey" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+torchcompile-lab = "compilelab.benchmark:main"
+torchcompile-graph-break = "compilelab.graph_break:main"
+
+[tool.setuptools.packages.find]
+include = ["compilelab*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
