@@ -16,7 +16,13 @@ from compilelab.graph_break import (
     capture_regions,
     fullgraph_failure,
 )
-from compilelab.workload import GatedMLP, PointwiseReduction, make_inputs
+from compilelab.projection_packing import parse_cases
+from compilelab.workload import (
+    GatedMLP,
+    PackedGatedMLP,
+    PointwiseReduction,
+    make_inputs,
+)
 
 
 def test_workload_shape_and_values_are_compilable() -> None:
@@ -170,3 +176,65 @@ def test_static_shape_mode_compiles_once_per_unique_length() -> None:
         False,
     ]
     assert all(call["correct"] for call in result["calls"])
+
+
+def test_parse_projection_packing_cases() -> None:
+    assert parse_cases("1x1, 1x128,4X128") == (
+        (1, 1),
+        (1, 128),
+        (4, 128),
+    )
+
+
+def test_packed_gated_mlp_preserves_state_and_gradients() -> None:
+    torch.manual_seed(7)
+    original = GatedMLP(model_dim=8, hidden_dim=16).eval()
+    packed = PackedGatedMLP.from_unpacked(original)
+    restored = packed.to_unpacked()
+
+    torch.testing.assert_close(
+        packed.gate_up_proj.weight,
+        torch.cat((original.gate_proj.weight, original.up_proj.weight), dim=0),
+        rtol=0,
+        atol=0,
+    )
+    for name, parameter in original.named_parameters():
+        torch.testing.assert_close(
+            parameter, dict(restored.named_parameters())[name], rtol=0, atol=0
+        )
+    assert not packed.training
+    assert not restored.training
+
+    original_input = torch.randn(2, 3, 8, requires_grad=True)
+    packed_input = original_input.detach().clone().requires_grad_(True)
+    original_output = original(original_input)
+    packed_output = packed(packed_input)
+    torch.testing.assert_close(packed_output, original_output)
+
+    original_output.square().mean().backward()
+    packed_output.square().mean().backward()
+    torch.testing.assert_close(packed_input.grad, original_input.grad)
+    packed_gate_grad, packed_up_grad = packed.gate_up_proj.weight.grad.chunk(2)
+    torch.testing.assert_close(packed_gate_grad, original.gate_proj.weight.grad)
+    torch.testing.assert_close(packed_up_grad, original.up_proj.weight.grad)
+    torch.testing.assert_close(
+        packed.down_proj.weight.grad, original.down_proj.weight.grad
+    )
+
+
+def test_packed_gated_mlp_supports_fullgraph_compilation() -> None:
+    torch.manual_seed(7)
+    original = GatedMLP(model_dim=8, hidden_dim=16).eval()
+    packed = PackedGatedMLP.from_unpacked(original)
+    inputs = torch.randn(2, 3, 8)
+
+    torch.compiler.reset()
+    try:
+        with torch.inference_mode():
+            reference = original(inputs)
+            compiled = torch.compile(packed, backend="eager", fullgraph=True)
+            actual = compiled(inputs)
+    finally:
+        torch.compiler.reset()
+
+    torch.testing.assert_close(actual, reference)

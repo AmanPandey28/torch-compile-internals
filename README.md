@@ -13,6 +13,7 @@ The current implementation evaluates:
 - Generated Inductor wrappers, external calls, Triton kernels, and launch counts.
 - Host enqueue time versus post-enqueue GPU completion time.
 - Guard failures, recompilation counts, and dynamic-shape specialization.
+- Reversible gated-MLP projection packing with state, graph, and GPU evidence.
 
 All reported measurements include the workload shape, dtype, software version,
 hardware target, cache policy, and correctness result.
@@ -120,6 +121,39 @@ Artifacts: [analysis](artifacts/mlp_codegen/summary.md), [raw
 result](artifacts/mlp_codegen/results.json), [sanitized generated
 wrapper](artifacts/mlp_codegen/inductor_output_code.py)
 
+### Gated MLP projection packing
+
+The first model transformation concatenates `gate_proj` and `up_proj` weights
+once during model conversion. The packed module replaces two equal-size input
+projections with one projection producing twice the hidden dimension, then uses
+view-based splitting before SiLU and multiplication. The conversion is
+reversible and retains the original 4,718,592 parameters.
+
+| Structural metric | Original | Packed |
+|---|---:|---:|
+| External GEMM calls in generated wrapper | 3 | 2 |
+| Compiled CUDA launches, representative shape | 4 | 3 |
+| Eager CUDA launches, representative shape | 5 | 4 |
+
+| Input shape | Original compiled | Packed compiled | Speedup |
+|---|---:|---:|---:|
+| `[1, 1, 768]` | 102.23 µs | 87.35 µs | 1.170× |
+| `[1, 128, 768]` | 138.03 µs | 125.26 µs | 1.102× |
+| `[4, 128, 768]` | 342.73 µs | 329.62 µs | 1.040× |
+
+Packing improved compiled latency at all three measured shapes and removed one
+CUDA launch per invocation. At the representative `[4, 128, 768]` shape, lower
+host enqueue time outweighed a longer GPU completion wait. Packing did not
+improve eager latency, and packed compiled execution did not beat original eager
+execution; the measured result is specifically a comparison between the packed
+and original compiled paths.
+
+Artifacts: [analysis](artifacts/mlp_projection_packing/summary.md), [raw
+result](artifacts/mlp_projection_packing/results.json), [before/after Dynamo
+graphs](artifacts/mlp_projection_packing/dynamo_graphs.py), [original
+wrapper](artifacts/mlp_projection_packing/original_inductor.py), [packed
+wrapper](artifacts/mlp_projection_packing/packed_inductor.py)
+
 ### Dynamic-shape specialization
 
 A controlled gated-MLP experiment varies sequence length across
@@ -165,6 +199,9 @@ graphs](artifacts/dynamic_shapes/automatic_graphs.py)
 - Dynamic-shape policies run in isolated processes with `TORCH_LOGS=recompiles`;
   a pass-through backend counts graph compilations and every output is checked
   against eager execution.
+- Projection packing uses a one-time state conversion, equal parameter counts,
+  identical inputs, isolated Inductor caches, alternating measurement order,
+  multiple shape regimes, and eager/compiled correctness checks.
 
 The included results are specific to the recorded hardware, software, dtype,
 and input shape. They are not portability or production-performance claims.
@@ -245,6 +282,19 @@ python -m compilelab.dynamic_shapes \
   --output-dir artifacts/dynamic_shapes
 ```
 
+Gated MLP projection-packing analysis:
+
+```bash
+python -m compilelab.projection_packing \
+  --cases 1x1,1x128,4x128 \
+  --dtype float16 \
+  --model-dim 768 \
+  --hidden-dim 2048 \
+  --warmup 50 \
+  --iterations 500 \
+  --output-dir artifacts/mlp_projection_packing
+```
+
 Artifact directories contain:
 
 - `results.json`: environment, configuration, correctness, and measured data.
@@ -259,6 +309,7 @@ compilelab/
   codegen.py         Inductor wrapper and runtime analysis
   dynamic_shapes.py  Guard and shape-specialization analysis
   graph_break.py     Data-dependent control-flow experiment
+  projection_packing.py  Gated-MLP state conversion and GPU comparison
   workload.py        Pointwise and gated-MLP workloads
 tests/
   test_compilelab.py Correctness and graph-capture tests
@@ -269,6 +320,6 @@ artifacts/           Curated benchmark and graph-capture results
 
 This repository currently covers compiler capture, graph breaks, timing
 methodology, generated-code inspection, launch profiling, dynamic-shape
-specialization, and one transformer MLP component. It does not currently include
-quantization, sparsity, full-model evaluation, kernel-level Nsight analysis, or
-production inference integration.
+specialization, and a measured gated-MLP projection-packing transformation. It
+does not currently include quantization, sparsity, full-model evaluation,
+kernel-level Nsight analysis, or production inference integration.

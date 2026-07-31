@@ -27,6 +27,9 @@ artifacts/*
 !artifacts/mlp_codegen/**
 !artifacts/dynamic_shapes/
 !artifacts/dynamic_shapes/**
+!artifacts/mlp_projection_packing/
+!artifacts/mlp_projection_packing/**
+artifacts/**/__pycache__/
 
 # LaTeX build products.
 *.aux

@@ -1,0 +1,791 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-07-31T22:45:53.067395+00:00",
+  "environment": {
+    "python": "3.12.12",
+    "platform": "Linux-7.0.0-28-generic-x86_64-with-glibc2.39",
+    "torch": "2.12.0+cu130",
+    "torch_cuda_runtime": "13.0",
+    "device": "cuda",
+    "cuda_available": true,
+    "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+    "compute_capability": [
+      12,
+      0
+    ]
+  },
+  "experiment": {
+    "transformation": "pack gate_proj and up_proj",
+    "model_dim": 768,
+    "hidden_dim": 2048,
+    "dtype": "float16",
+    "seed": 0,
+    "warmup": 50,
+    "iterations": 500,
+    "profile_iterations": 20,
+    "correctness_atol": 0.02,
+    "correctness_rtol": 0.02,
+    "fullgraph": true,
+    "isolated_inductor_cache_per_variant": true,
+    "measurement_order": "alternating forward and reverse"
+  },
+  "representative_case_index": 2,
+  "cases": [
+    {
+      "shape": [
+        1,
+        1,
+        768
+      ],
+      "token_count": 1,
+      "dtype": "float16",
+      "parameter_count": 4718592,
+      "correctness": {
+        "packed_eager_vs_original_eager": {
+          "allclose": true,
+          "max_abs_error": 0.0001220703125,
+          "mean_abs_error": 2.510690592316678e-06
+        },
+        "original_compiled_vs_original_eager": {
+          "allclose": true,
+          "max_abs_error": 0.000152587890625,
+          "mean_abs_error": 2.898865750466939e-05
+        },
+        "packed_compiled_vs_original_eager": {
+          "allclose": true,
+          "max_abs_error": 0.000152587890625,
+          "mean_abs_error": 2.8806272894144058e-05
+        }
+      },
+      "inductor_wrapper": {
+        "original": {
+          "external_kernel_calls": {
+            "mm": 3
+          },
+          "external_kernel_call_count": 3,
+          "triton_kernel_definitions": [
+            "triton_poi_fused__unsafe_view_mul_silu_0"
+          ],
+          "triton_kernel_launches": [
+            "triton_poi_fused__unsafe_view_mul_silu_0"
+          ],
+          "triton_kernel_launch_count": 1,
+          "wrapper_launch_site_count": 4,
+          "buffer_reuse_count": 1,
+          "input_alignment_copy_count": 1,
+          "source_node_groups": [
+            "linear, silu, linear_1, gated",
+            "linear",
+            "linear_1",
+            "linear, silu, linear_1, gated",
+            "linear, silu, linear_1, gated, linear_2"
+          ]
+        },
+        "packed": {
+          "external_kernel_calls": {
+            "mm": 2
+          },
+          "external_kernel_call_count": 2,
+          "triton_kernel_definitions": [
+            "triton_poi_fused__unsafe_view_mul_silu_split_0"
+          ],
+          "triton_kernel_launches": [
+            "triton_poi_fused__unsafe_view_mul_silu_split_0"
+          ],
+          "triton_kernel_launch_count": 1,
+          "wrapper_launch_site_count": 3,
+          "buffer_reuse_count": 0,
+          "input_alignment_copy_count": 1,
+          "source_node_groups": [
+            "linear, chunk, silu, mul",
+            "linear",
+            "linear, chunk, silu, mul",
+            "linear, chunk, silu, mul, linear_1"
+          ]
+        }
+      },
+      "runtime_breakdown": {
+        "original_eager": {
+          "host_enqueue": {
+            "median_us": 41.81399708613753,
+            "p90_us": 43.13999670557678,
+            "min_us": 39.20399467460811,
+            "max_us": 110.33599730581045
+          },
+          "completion_wait": {
+            "median_us": 15.524994523730129,
+            "p90_us": 17.048005247488618,
+            "min_us": 10.697011020965874,
+            "max_us": 183.17700596526265
+          },
+          "synchronized_total": {
+            "median_us": 57.08699609385803,
+            "p90_us": 59.36599336564541,
+            "min_us": 54.777992772869766,
+            "max_us": 223.23800658341497
+          }
+        },
+        "packed_eager": {
+          "host_enqueue": {
+            "median_us": 46.32999480236322,
+            "p90_us": 50.098999054171145,
+            "min_us": 33.957010600715876,
+            "max_us": 58.349003666080534
+          },
+          "completion_wait": {
+            "median_us": 10.895993909798563,
+            "p90_us": 11.441996321082115,
+            "min_us": 9.351992048323154,
+            "max_us": 168.10100350994617
+          },
+          "synchronized_total": {
+            "median_us": 57.168501371052116,
+            "p90_us": 61.179991462267935,
+            "min_us": 44.13900023791939,
+            "max_us": 203.1800104305148
+          }
+        },
+        "original_compiled": {
+          "host_enqueue": {
+            "median_us": 93.12399924965575,
+            "p90_us": 100.04300565924495,
+            "min_us": 82.87599484901875,
+            "max_us": 160.87800031527877
+          },
+          "completion_wait": {
+            "median_us": 8.419498044531792,
+            "p90_us": 9.365990990772843,
+            "min_us": 7.186987204477191,
+            "max_us": 175.53201178088784
+          },
+          "synchronized_total": {
+            "median_us": 102.22649871138856,
+            "p90_us": 110.43901031371206,
+            "min_us": 90.7709909370169,
+            "max_us": 275.96599829848856
+          }
+        },
+        "packed_compiled": {
+          "host_enqueue": {
+            "median_us": 79.3195067672059,
+            "p90_us": 84.01299419347197,
+            "min_us": 74.1179974284023,
+            "max_us": 99.83099880628288
+          },
+          "completion_wait": {
+            "median_us": 7.9809979069978,
+            "p90_us": 8.567993063479662,
+            "min_us": 6.264002877287567,
+            "max_us": 134.08801169134676
+          },
+          "synchronized_total": {
+            "median_us": 87.35399751458317,
+            "p90_us": 93.24400161858648,
+            "min_us": 81.67799387592822,
+            "max_us": 218.09901227243245
+          }
+        }
+      },
+      "kernel_profile": {
+        "original_eager": {
+          "profiled_invocations": 20,
+          "launch_count": 100,
+          "launches_per_invocation": 5.0,
+          "categories": {
+            "eager_multiply": {
+              "launch_count": 20,
+              "total_device_time_us": 15.233999999999924,
+              "mean_device_time_us": 0.7616999999999962
+            },
+            "eager_silu": {
+              "launch_count": 20,
+              "total_device_time_us": 21.02300000000082,
+              "mean_device_time_us": 1.051150000000041
+            },
+            "other": {
+              "launch_count": 60,
+              "total_device_time_us": 833.4779999999978,
+              "mean_device_time_us": 13.891299999999964
+            }
+          }
+        },
+        "packed_eager": {
+          "profiled_invocations": 20,
+          "launch_count": 80,
+          "launches_per_invocation": 4.0,
+          "categories": {
+            "eager_multiply": {
+              "launch_count": 20,
+              "total_device_time_us": 15.230999999999995,
+              "mean_device_time_us": 0.7615499999999997
+            },
+            "eager_silu": {
+              "launch_count": 20,
+              "total_device_time_us": 21.211999999998852,
+              "mean_device_time_us": 1.0605999999999427
+            },
+            "external_gemm": {
+              "launch_count": 20,
+              "total_device_time_us": 193.61200000000008,
+              "mean_device_time_us": 9.680600000000004
+            },
+            "other": {
+              "launch_count": 20,
+              "total_device_time_us": 143.7299999999991,
+              "mean_device_time_us": 7.186499999999955
+            }
+          }
+        },
+        "original_compiled": {
+          "profiled_invocations": 20,
+          "launch_count": 80,
+          "launches_per_invocation": 4.0,
+          "categories": {
+            "generated_triton": {
+              "launch_count": 20,
+              "total_device_time_us": 15.544999999999845,
+              "mean_device_time_us": 0.7772499999999922
+            },
+            "other": {
+              "launch_count": 60,
+              "total_device_time_us": 835.764000000001,
+              "mean_device_time_us": 13.929400000000017
+            }
+          }
+        },
+        "packed_compiled": {
+          "profiled_invocations": 20,
+          "launch_count": 60,
+          "launches_per_invocation": 3.0,
+          "categories": {
+            "external_gemm": {
+              "launch_count": 20,
+              "total_device_time_us": 189.96499999999946,
+              "mean_device_time_us": 9.498249999999974
+            },
+            "generated_triton": {
+              "launch_count": 20,
+              "total_device_time_us": 15.422999999999547,
+              "mean_device_time_us": 0.7711499999999774
+            },
+            "other": {
+              "launch_count": 20,
+              "total_device_time_us": 143.9849999999999,
+              "mean_device_time_us": 7.199249999999995
+            }
+          }
+        }
+      },
+      "comparison": {
+        "eager_speedup": 0.9985742974673225,
+        "compiled_speedup": 1.1702555305991866,
+        "compiled_median_delta_us": -14.872501196805388,
+        "compiled_launch_reduction": 1.0
+      }
+    },
+    {
+      "shape": [
+        1,
+        128,
+        768
+      ],
+      "token_count": 128,
+      "dtype": "float16",
+      "parameter_count": 4718592,
+      "correctness": {
+        "packed_eager_vs_original_eager": {
+          "allclose": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0
+        },
+        "original_compiled_vs_original_eager": {
+          "allclose": true,
+          "max_abs_error": 0.0003662109375,
+          "mean_abs_error": 3.493304393487051e-05
+        },
+        "packed_compiled_vs_original_eager": {
+          "allclose": true,
+          "max_abs_error": 0.0003662109375,
+          "mean_abs_error": 3.493304393487051e-05
+        }
+      },
+      "inductor_wrapper": {
+        "original": {
+          "external_kernel_calls": {
+            "mm": 3
+          },
+          "external_kernel_call_count": 3,
+          "triton_kernel_definitions": [
+            "triton_poi_fused__unsafe_view_mul_silu_0"
+          ],
+          "triton_kernel_launches": [
+            "triton_poi_fused__unsafe_view_mul_silu_0"
+          ],
+          "triton_kernel_launch_count": 1,
+          "wrapper_launch_site_count": 4,
+          "buffer_reuse_count": 1,
+          "input_alignment_copy_count": 1,
+          "source_node_groups": [
+            "linear, silu, linear_1, gated",
+            "linear",
+            "linear_1",
+            "linear, silu, linear_1, gated",
+            "linear, silu, linear_1, gated, linear_2"
+          ]
+        },
+        "packed": {
+          "external_kernel_calls": {
+            "mm": 2
+          },
+          "external_kernel_call_count": 2,
+          "triton_kernel_definitions": [
+            "triton_poi_fused__unsafe_view_mul_silu_split_0"
+          ],
+          "triton_kernel_launches": [
+            "triton_poi_fused__unsafe_view_mul_silu_split_0"
+          ],
+          "triton_kernel_launch_count": 1,
+          "wrapper_launch_site_count": 3,
+          "buffer_reuse_count": 0,
+          "input_alignment_copy_count": 1,
+          "source_node_groups": [
+            "linear, chunk, silu, mul",
+            "linear",
+            "linear, chunk, silu, mul",
+            "linear, chunk, silu, mul, linear_1"
+          ]
+        }
+      },
+      "runtime_breakdown": {
+        "original_eager": {
+          "host_enqueue": {
+            "median_us": 58.98900417378172,
+            "p90_us": 63.450002926401794,
+            "min_us": 54.935007938183844,
+            "max_us": 119.58900722675025
+          },
+          "completion_wait": {
+            "median_us": 33.51049963384867,
+            "p90_us": 37.59399987757206,
+            "min_us": 20.7390112336725,
+            "max_us": 186.16799206938595
+          },
+          "synchronized_total": {
+            "median_us": 91.49250399786979,
+            "p90_us": 97.57099905982614,
+            "min_us": 88.28300633467734,
+            "max_us": 243.21400269400328
+          }
+        },
+        "packed_eager": {
+          "host_enqueue": {
+            "median_us": 62.009501561988145,
+            "p90_us": 70.9409941919148,
+            "min_us": 47.11499786935747,
+            "max_us": 131.59199443180114
+          },
+          "completion_wait": {
+            "median_us": 36.725992686115205,
+            "p90_us": 41.71500040683895,
+            "min_us": 18.66200182121247,
+            "max_us": 184.84900647308677
+          },
+          "synchronized_total": {
+            "median_us": 94.0214958973229,
+            "p90_us": 101.93200432695448,
+            "min_us": 84.8620111355558,
+            "max_us": 248.61699785105884
+          }
+        },
+        "original_compiled": {
+          "host_enqueue": {
+            "median_us": 113.94100147299469,
+            "p90_us": 124.52299415599555,
+            "min_us": 99.66499055735767,
+            "max_us": 227.34099184162915
+          },
+          "completion_wait": {
+            "median_us": 24.877495889086276,
+            "p90_us": 30.961993616074324,
+            "min_us": 10.606003343127668,
+            "max_us": 230.7379909325391
+          },
+          "synchronized_total": {
+            "median_us": 138.0259927827865,
+            "p90_us": 151.9779907539487,
+            "min_us": 127.17799108941108,
+            "max_us": 334.42198764532804
+          }
+        },
+        "packed_compiled": {
+          "host_enqueue": {
+            "median_us": 96.49150888435543,
+            "p90_us": 105.39899813011289,
+            "min_us": 89.31200136430562,
+            "max_us": 209.60200345143676
+          },
+          "completion_wait": {
+            "median_us": 28.8165028905496,
+            "p90_us": 33.244999940507114,
+            "min_us": 12.664997484534979,
+            "max_us": 161.07899136841297
+          },
+          "synchronized_total": {
+            "median_us": 125.25949568953365,
+            "p90_us": 136.19300443679094,
+            "min_us": 118.75999916810542,
+            "max_us": 254.8789925640449
+          }
+        }
+      },
+      "kernel_profile": {
+        "original_eager": {
+          "profiled_invocations": 20,
+          "launch_count": 120,
+          "launches_per_invocation": 6.0,
+          "categories": {
+            "eager_multiply": {
+              "launch_count": 20,
+              "total_device_time_us": 32.444999999999254,
+              "mean_device_time_us": 1.6222499999999627
+            },
+            "eager_silu": {
+              "launch_count": 20,
+              "total_device_time_us": 45.15100000000052,
+              "mean_device_time_us": 2.257550000000026
+            },
+            "external_gemm": {
+              "launch_count": 60,
+              "total_device_time_us": 1318.1670000000013,
+              "mean_device_time_us": 21.96945000000002
+            },
+            "other": {
+              "launch_count": 20,
+              "total_device_time_us": 8.448000000000093,
+              "mean_device_time_us": 0.42240000000000466
+            }
+          }
+        },
+        "packed_eager": {
+          "profiled_invocations": 20,
+          "launch_count": 100,
+          "launches_per_invocation": 5.0,
+          "categories": {
+            "eager_multiply": {
+              "launch_count": 20,
+              "total_device_time_us": 78.24599999999919,
+              "mean_device_time_us": 3.9122999999999593
+            },
+            "eager_silu": {
+              "launch_count": 20,
+              "total_device_time_us": 91.1109999999992,
+              "mean_device_time_us": 4.555549999999959
+            },
+            "external_gemm": {
+              "launch_count": 40,
+              "total_device_time_us": 1177.2649999999996,
+              "mean_device_time_us": 29.43162499999999
+            },
+            "other": {
+              "launch_count": 20,
+              "total_device_time_us": 15.520000000000437,
+              "mean_device_time_us": 0.7760000000000218
+            }
+          }
+        },
+        "original_compiled": {
+          "profiled_invocations": 20,
+          "launch_count": 100,
+          "launches_per_invocation": 5.0,
+          "categories": {
+            "external_gemm": {
+              "launch_count": 60,
+              "total_device_time_us": 1240.9320000000025,
+              "mean_device_time_us": 20.68220000000004
+            },
+            "generated_triton": {
+              "launch_count": 20,
+              "total_device_time_us": 39.00199999999768,
+              "mean_device_time_us": 1.950099999999884
+            },
+            "other": {
+              "launch_count": 20,
+              "total_device_time_us": 14.846999999999753,
+              "mean_device_time_us": 0.7423499999999876
+            }
+          }
+        },
+        "packed_compiled": {
+          "profiled_invocations": 20,
+          "launch_count": 80,
+          "launches_per_invocation": 4.0,
+          "categories": {
+            "external_gemm": {
+              "launch_count": 40,
+              "total_device_time_us": 1114.8320000000017,
+              "mean_device_time_us": 27.87080000000004
+            },
+            "generated_triton": {
+              "launch_count": 20,
+              "total_device_time_us": 38.810999999999694,
+              "mean_device_time_us": 1.9405499999999847
+            },
+            "other": {
+              "launch_count": 20,
+              "total_device_time_us": 6.656999999999243,
+              "mean_device_time_us": 0.3328499999999622
+            }
+          }
+        }
+      },
+      "comparison": {
+        "eager_speedup": 0.9731019818891744,
+        "compiled_speedup": 1.101920393523663,
+        "compiled_median_delta_us": -12.766497093252838,
+        "compiled_launch_reduction": 1.0
+      }
+    },
+    {
+      "shape": [
+        4,
+        128,
+        768
+      ],
+      "token_count": 512,
+      "dtype": "float16",
+      "parameter_count": 4718592,
+      "correctness": {
+        "packed_eager_vs_original_eager": {
+          "allclose": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0
+        },
+        "original_compiled_vs_original_eager": {
+          "allclose": true,
+          "max_abs_error": 0.000244140625,
+          "mean_abs_error": 2.920465703937225e-05
+        },
+        "packed_compiled_vs_original_eager": {
+          "allclose": true,
+          "max_abs_error": 0.000244140625,
+          "mean_abs_error": 2.920465703937225e-05
+        }
+      },
+      "inductor_wrapper": {
+        "original": {
+          "external_kernel_calls": {
+            "mm": 3
+          },
+          "external_kernel_call_count": 3,
+          "triton_kernel_definitions": [
+            "triton_poi_fused__unsafe_view_mul_silu_0"
+          ],
+          "triton_kernel_launches": [
+            "triton_poi_fused__unsafe_view_mul_silu_0"
+          ],
+          "triton_kernel_launch_count": 1,
+          "wrapper_launch_site_count": 4,
+          "buffer_reuse_count": 1,
+          "input_alignment_copy_count": 1,
+          "source_node_groups": [
+            "linear, silu, linear_1, gated",
+            "linear",
+            "linear_1",
+            "linear, silu, linear_1, gated",
+            "linear, silu, linear_1, gated, linear_2"
+          ]
+        },
+        "packed": {
+          "external_kernel_calls": {
+            "mm": 2
+          },
+          "external_kernel_call_count": 2,
+          "triton_kernel_definitions": [
+            "triton_poi_fused__unsafe_view_mul_silu_split_0"
+          ],
+          "triton_kernel_launches": [
+            "triton_poi_fused__unsafe_view_mul_silu_split_0"
+          ],
+          "triton_kernel_launch_count": 1,
+          "wrapper_launch_site_count": 3,
+          "buffer_reuse_count": 0,
+          "input_alignment_copy_count": 1,
+          "source_node_groups": [
+            "linear, chunk, silu, mul",
+            "linear",
+            "linear, chunk, silu, mul",
+            "linear, chunk, silu, mul, linear_1"
+          ]
+        }
+      },
+      "runtime_breakdown": {
+        "original_eager": {
+          "host_enqueue": {
+            "median_us": 59.78150147711858,
+            "p90_us": 66.80400110781193,
+            "min_us": 53.768002544529736,
+            "max_us": 231.03601415641606
+          },
+          "completion_wait": {
+            "median_us": 230.8189941686578,
+            "p90_us": 329.6429931651801,
+            "min_us": 182.31899593956769,
+            "max_us": 563.6770074488595
+          },
+          "synchronized_total": {
+            "median_us": 289.8130042012781,
+            "p90_us": 393.2590043405071,
+            "min_us": 279.08399351872504,
+            "max_us": 624.4190008146688
+          }
+        },
+        "packed_eager": {
+          "host_enqueue": {
+            "median_us": 63.83899744832888,
+            "p90_us": 93.11399480793625,
+            "min_us": 46.68699693866074,
+            "max_us": 186.0470074461773
+          },
+          "completion_wait": {
+            "median_us": 252.9614939703606,
+            "p90_us": 357.63499909080565,
+            "min_us": 211.94398868829012,
+            "max_us": 629.8000080278143
+          },
+          "synchronized_total": {
+            "median_us": 313.5359947918914,
+            "p90_us": 425.9590059518814,
+            "min_us": 296.79600265808403,
+            "max_us": 693.819994921796
+          }
+        },
+        "original_compiled": {
+          "host_enqueue": {
+            "median_us": 120.92450197087601,
+            "p90_us": 176.04799359105527,
+            "min_us": 99.90899707190692,
+            "max_us": 271.36200515087694
+          },
+          "completion_wait": {
+            "median_us": 217.45700360042974,
+            "p90_us": 317.6909958710894,
+            "min_us": 174.8509967001155,
+            "max_us": 529.9429903971031
+          },
+          "synchronized_total": {
+            "median_us": 342.7264964557253,
+            "p90_us": 439.9820027174428,
+            "min_us": 311.6160078207031,
+            "max_us": 666.856998577714
+          }
+        },
+        "packed_compiled": {
+          "host_enqueue": {
+            "median_us": 99.81350012822077,
+            "p90_us": 117.71700519602746,
+            "min_us": 85.0549986353144,
+            "max_us": 220.68899124860764
+          },
+          "completion_wait": {
+            "median_us": 227.30950149707496,
+            "p90_us": 327.6150091551244,
+            "min_us": 176.58800061326474,
+            "max_us": 468.62098679412156
+          },
+          "synchronized_total": {
+            "median_us": 329.61599208647385,
+            "p90_us": 427.3869999451563,
+            "min_us": 311.71900627668947,
+            "max_us": 608.22899104096
+          }
+        }
+      },
+      "kernel_profile": {
+        "original_eager": {
+          "profiled_invocations": 20,
+          "launch_count": 100,
+          "launches_per_invocation": 5.0,
+          "categories": {
+            "eager_multiply": {
+              "launch_count": 20,
+              "total_device_time_us": 162.41499999999814,
+              "mean_device_time_us": 8.120749999999907
+            },
+            "eager_silu": {
+              "launch_count": 20,
+              "total_device_time_us": 213.0020000000004,
+              "mean_device_time_us": 10.65010000000002
+            },
+            "external_gemm": {
+              "launch_count": 60,
+              "total_device_time_us": 7624.009000000002,
+              "mean_device_time_us": 127.0668166666667
+            }
+          }
+        },
+        "packed_eager": {
+          "profiled_invocations": 20,
+          "launch_count": 80,
+          "launches_per_invocation": 4.0,
+          "categories": {
+            "eager_multiply": {
+              "launch_count": 20,
+              "total_device_time_us": 380.89000000000124,
+              "mean_device_time_us": 19.044500000000063
+            },
+            "eager_silu": {
+              "launch_count": 20,
+              "total_device_time_us": 729.0830000000028,
+              "mean_device_time_us": 36.45415000000014
+            },
+            "external_gemm": {
+              "launch_count": 40,
+              "total_device_time_us": 6326.856,
+              "mean_device_time_us": 158.17139999999998
+            }
+          }
+        },
+        "original_compiled": {
+          "profiled_invocations": 20,
+          "launch_count": 80,
+          "launches_per_invocation": 4.0,
+          "categories": {
+            "external_gemm": {
+              "launch_count": 60,
+              "total_device_time_us": 5467.612000000005,
+              "mean_device_time_us": 91.12686666666674
+            },
+            "generated_triton": {
+              "launch_count": 20,
+              "total_device_time_us": 143.949999999998,
+              "mean_device_time_us": 7.1974999999999
+            }
+          }
+        },
+        "packed_compiled": {
+          "profiled_invocations": 20,
+          "launch_count": 60,
+          "launches_per_invocation": 3.0,
+          "categories": {
+            "external_gemm": {
+              "launch_count": 40,
+              "total_device_time_us": 5119.309000000001,
+              "mean_device_time_us": 127.98272500000002
+            },
+            "generated_triton": {
+              "launch_count": 20,
+              "total_device_time_us": 146.80699999999888,
+              "mean_device_time_us": 7.340349999999944
+            }
+          }
+        }
+      },
+      "comparison": {
+        "eager_speedup": 0.9243372659449853,
+        "compiled_speedup": 1.0397750858089796,
+        "compiled_median_delta_us": -13.11050436925143,
+        "compiled_launch_reduction": 1.0
+      }
+    }
+  ]
+}
