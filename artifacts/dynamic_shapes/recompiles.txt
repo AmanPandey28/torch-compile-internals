@@ -1,0 +1,15 @@
+Dynamo guard-triggered recompilations
+
+[static]
+Recompile 1: function forward
+- tensor 'x' size mismatch at index 1. expected 32, actual 64
+Recompile 2: function forward
+- tensor 'x' size mismatch at index 1. expected 64, actual 128
+- tensor 'x' size mismatch at index 1. expected 32, actual 128
+
+[automatic]
+Recompile 1: function forward
+- tensor 'x' size mismatch at index 1. expected 32, actual 64
+
+[dynamic]
+No recompilations recorded.

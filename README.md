@@ -12,6 +12,7 @@ The current implementation evaluates:
 - Compiler behavior on a gated transformer MLP.
 - Generated Inductor wrappers, external calls, Triton kernels, and launch counts.
 - Host enqueue time versus post-enqueue GPU completion time.
+- Guard failures, recompilation counts, and dynamic-shape specialization.
 
 All reported measurements include the workload shape, dtype, software version,
 hardware target, cache policy, and correctness result.
@@ -119,6 +120,29 @@ Artifacts: [analysis](artifacts/mlp_codegen/summary.md), [raw
 result](artifacts/mlp_codegen/results.json), [sanitized generated
 wrapper](artifacts/mlp_codegen/inductor_output_code.py)
 
+### Dynamic-shape specialization
+
+A controlled gated-MLP experiment varies sequence length across
+`[32, 64, 128, 32, 64]`. Each policy runs in a separate process with a
+pass-through backend so the result isolates Dynamo graph capture from Inductor
+code generation.
+
+| Policy | `dynamic` argument | Graph compilations | Guard-triggered recompiles |
+|---|---:|---:|---:|
+| Static | `False` | 3 | 2 |
+| Automatic | `None` | 2 | 1 |
+| Upfront dynamic | `True` | 1 | 0 |
+
+Static mode creates one graph per unique sequence length. Automatic mode first
+captures a specialized graph, then recompiles once with a symbolic sequence
+dimension. Upfront dynamic mode captures the symbolic graph immediately. When
+64 and 128 are repeated, all policies reuse their existing cached graphs.
+
+Artifacts: [analysis](artifacts/dynamic_shapes/summary.md), [raw
+result](artifacts/dynamic_shapes/results.json), [sanitized recompile
+log](artifacts/dynamic_shapes/recompiles.txt), [automatic-mode FX
+graphs](artifacts/dynamic_shapes/automatic_graphs.py)
+
 ## Methodology
 
 - Eager output is computed before compilation and used as the correctness
@@ -138,6 +162,9 @@ wrapper](artifacts/mlp_codegen/inductor_output_code.py)
 - CUDA profiler events verify eager and compiled launch counts.
 - Runtime variants alternate measurement order and separate host enqueue from
   post-enqueue completion wait.
+- Dynamic-shape policies run in isolated processes with `TORCH_LOGS=recompiles`;
+  a pass-through backend counts graph compilations and every output is checked
+  against eager execution.
 
 The included results are specific to the recorded hardware, software, dtype,
 and input shape. They are not portability or production-performance claims.
@@ -153,7 +180,7 @@ source .venv/bin/activate
 
 # Install PyTorch for the target platform first.
 pip install -e ".[dev]"
-pytest
+python -m pytest
 ```
 
 ## Usage
@@ -208,11 +235,21 @@ python -m compilelab.codegen \
   --output-dir artifacts/mlp_codegen
 ```
 
-Each benchmark run writes:
+Dynamic-shape specialization analysis:
 
-- `results.json`: environment, configuration, correctness, and timing data.
+```bash
+python -m compilelab.dynamic_shapes \
+  --sequence-lengths 32,64,128,32,64 \
+  --model-dim 64 \
+  --hidden-dim 128 \
+  --output-dir artifacts/dynamic_shapes
+```
+
+Artifact directories contain:
+
+- `results.json`: environment, configuration, correctness, and measured data.
 - `summary.md`: formatted result summary.
-- `dynamo_fx_graph.py`: captured Dynamo FX graph.
+- Case-specific FX graphs, generated wrappers, or sanitized compiler logs.
 
 ## Repository structure
 
@@ -220,6 +257,7 @@ Each benchmark run writes:
 compilelab/
   benchmark.py       Benchmark runner and artifact generation
   codegen.py         Inductor wrapper and runtime analysis
+  dynamic_shapes.py  Guard and shape-specialization analysis
   graph_break.py     Data-dependent control-flow experiment
   workload.py        Pointwise and gated-MLP workloads
 tests/
@@ -230,6 +268,7 @@ artifacts/           Curated benchmark and graph-capture results
 ## Current scope
 
 This repository currently covers compiler capture, graph breaks, timing
-methodology, generated-code inspection, launch profiling, and one transformer
-MLP component. It does not currently include quantization, sparsity, full-model
-evaluation, kernel-level Nsight analysis, or production inference integration.
+methodology, generated-code inspection, launch profiling, dynamic-shape
+specialization, and one transformer MLP component. It does not currently include
+quantization, sparsity, full-model evaluation, kernel-level Nsight analysis, or
+production inference integration.

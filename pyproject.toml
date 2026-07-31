@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "torchcompile-lab"
-version = "0.3.0"
-description = "Hands-on experiments for learning torch.compile and model optimization"
+version = "0.4.0"
+description = "Reproducible torch.compile benchmarks and compiler analysis"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -19,6 +19,7 @@ dev = ["pytest>=8"]
 torchcompile-lab = "compilelab.benchmark:main"
 torchcompile-graph-break = "compilelab.graph_break:main"
 torchcompile-codegen = "compilelab.codegen:main"
+torchcompile-dynamic-shapes = "compilelab.dynamic_shapes:main"
 
 [tool.setuptools.packages.find]
 include = ["compilelab*"]

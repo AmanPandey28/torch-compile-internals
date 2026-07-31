@@ -4,6 +4,12 @@ import torch
 
 from compilelab.benchmark import capture_dynamo_graph, parse_shape
 from compilelab.codegen import classify_cuda_kernel, classify_inductor_wrapper
+from compilelab.dynamic_shapes import (
+    ExperimentConfig,
+    execute_mode,
+    parse_recompile_events,
+    parse_sequence_lengths,
+)
 from compilelab.graph_break import (
     CondDataDependentBranch,
     PythonDataDependentBranch,
@@ -114,3 +120,53 @@ def test_cuda_kernel_name_classification() -> None:
     assert classify_cuda_kernel("triton_poi_fused_silu_mul") == "generated_triton"
     assert classify_cuda_kernel("vectorized_silu_kernel") == "eager_silu"
     assert classify_cuda_kernel("BinaryFunctor<MulFunctor<float>>") == "eager_multiply"
+
+
+def test_parse_sequence_lengths() -> None:
+    assert parse_sequence_lengths("64, 128,256") == (64, 128, 256)
+
+
+def test_recompile_log_parsing_removes_runtime_prefixes() -> None:
+    prefix = "V123 10:00:00.000000 42 guards.py:1] [0/1] [__recompiles]"
+    log = "\n".join(
+        (
+            f"{prefix} Recompiling function forward in /private/workload.py:26",
+            f"{prefix} triggered by the following guard failure(s):",
+            f"{prefix} - 0/0: tensor 'x' size mismatch at index 1. "
+            "expected 64, actual 128",
+        )
+    )
+
+    assert parse_recompile_events(log) == [
+        {
+            "function": "forward",
+            "guard_failures": [
+                "tensor 'x' size mismatch at index 1. expected 64, actual 128"
+            ],
+        }
+    ]
+
+
+def test_static_shape_mode_compiles_once_per_unique_length() -> None:
+    torch.compiler.reset()
+    try:
+        result = execute_mode(
+            "static",
+            ExperimentConfig(
+                sequence_lengths=(4, 8, 4),
+                batch_size=1,
+                model_dim=8,
+                hidden_dim=16,
+                seed=7,
+            ),
+        )
+    finally:
+        torch.compiler.reset()
+
+    assert result["backend_compilations"] == 2
+    assert [call["new_graph_compiled"] for call in result["calls"]] == [
+        True,
+        True,
+        False,
+    ]
+    assert all(call["correct"] for call in result["calls"])
