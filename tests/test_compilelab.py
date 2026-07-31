@@ -3,6 +3,7 @@ from __future__ import annotations
 import torch
 
 from compilelab.benchmark import capture_dynamo_graph, parse_shape
+from compilelab.codegen import classify_cuda_kernel, classify_inductor_wrapper
 from compilelab.graph_break import (
     CondDataDependentBranch,
     PythonDataDependentBranch,
@@ -86,3 +87,30 @@ def test_gated_mlp_shape_and_fullgraph_capture() -> None:
     assert "torch._C._nn.linear" in graph_code[0]
     assert "torch.nn.functional.silu" in graph_code[0]
     torch.testing.assert_close(actual, reference)
+
+
+def test_inductor_wrapper_classification() -> None:
+    source = """
+fused_silu_mul = async_compile.triton('fused_silu_mul', '...')
+
+class Runner:
+    def call(self, args):
+        extern_kernels.mm(args[0], args[1], out=args[2])
+        extern_kernels.mm(args[0], args[3], out=args[4])
+        fused_silu_mul.run(args[2], args[4], 16)
+        extern_kernels.mm(args[2], args[5], out=args[6])
+"""
+
+    result = classify_inductor_wrapper(source)
+
+    assert result["external_kernel_calls"] == {"mm": 3}
+    assert result["triton_kernel_definitions"] == ["fused_silu_mul"]
+    assert result["triton_kernel_launches"] == ["fused_silu_mul"]
+    assert result["wrapper_launch_site_count"] == 4
+
+
+def test_cuda_kernel_name_classification() -> None:
+    assert classify_cuda_kernel("cutlass_80_tensorop_gemm") == "external_gemm"
+    assert classify_cuda_kernel("triton_poi_fused_silu_mul") == "generated_triton"
+    assert classify_cuda_kernel("vectorized_silu_kernel") == "eager_silu"
+    assert classify_cuda_kernel("BinaryFunctor<MulFunctor<float>>") == "eager_multiply"

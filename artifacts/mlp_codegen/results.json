@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-07-31T22:17:29.258567+00:00",
+  "environment": {
+    "python": "3.12.12",
+    "platform": "Linux-7.0.0-28-generic-x86_64-with-glibc2.39",
+    "torch": "2.12.0+cu130",
+    "torch_cuda_runtime": "13.0",
+    "device": "cuda",
+    "cuda_available": true,
+    "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+    "compute_capability": [
+      12,
+      0
+    ]
+  },
+  "experiment": {
+    "workload": "GatedMLP",
+    "shape": [
+      4,
+      128,
+      768
+    ],
+    "model_dim": 768,
+    "hidden_dim": 2048,
+    "parameter_count": 4718592,
+    "dtype": "float16",
+    "seed": 0,
+    "warmup": 50,
+    "iterations": 500,
+    "profile_iterations": 20,
+    "fullgraph": true,
+    "isolated_inductor_cache": true
+  },
+  "correctness": {
+    "allclose": true,
+    "atol": 0.02,
+    "rtol": 0.02,
+    "max_abs_error": 0.000244140625,
+    "mean_abs_error": 2.920465703937225e-05
+  },
+  "inductor_wrapper": {
+    "external_kernel_calls": {
+      "mm": 3
+    },
+    "external_kernel_call_count": 3,
+    "triton_kernel_definitions": [
+      "triton_poi_fused__unsafe_view_mul_silu_0"
+    ],
+    "triton_kernel_launches": [
+      "triton_poi_fused__unsafe_view_mul_silu_0"
+    ],
+    "triton_kernel_launch_count": 1,
+    "wrapper_launch_site_count": 4,
+    "buffer_reuse_count": 1,
+    "input_alignment_copy_count": 1,
+    "source_node_groups": [
+      "linear, silu, linear_1, gated",
+      "linear",
+      "linear_1",
+      "linear, silu, linear_1, gated",
+      "linear, silu, linear_1, gated, linear_2"
+    ],
+    "source_artifact": "inductor_output_code.py"
+  },
+  "runtime_breakdown": {
+    "eager": {
+      "host_enqueue": {
+        "median_us": 51.21249705553055,
+        "p90_us": 56.495991884730756,
+        "min_us": 41.89199535176158,
+        "max_us": 243.1940083624795
+      },
+      "completion_wait": {
+        "median_us": 230.54950725054368,
+        "p90_us": 242.83899983856827,
+        "min_us": 170.5030008452013,
+        "max_us": 407.5929900864139
+      },
+      "synchronized_total": {
+        "median_us": 280.3470051730983,
+        "p90_us": 298.17600443493575,
+        "min_us": 269.9089964153245,
+        "max_us": 454.56099906004965
+      }
+    },
+    "compiled": {
+      "host_enqueue": {
+        "median_us": 94.53399979975075,
+        "p90_us": 107.7009947039187,
+        "min_us": 84.72999616060406,
+        "max_us": 286.9809977710247
+      },
+      "completion_wait": {
+        "median_us": 222.00249804882333,
+        "p90_us": 236.53499374631792,
+        "min_us": 178.76600031740963,
+        "max_us": 403.98899000138044
+      },
+      "synchronized_total": {
+        "median_us": 316.9760020682588,
+        "p90_us": 339.95500416494906,
+        "min_us": 306.40000477433205,
+        "max_us": 491.7439946439117
+      }
+    }
+  },
+  "kernel_profile": {
+    "eager": {
+      "profiled_invocations": 20,
+      "launch_count": 100,
+      "launches_per_invocation": 5.0,
+      "categories": {
+        "eager_multiply": {
+          "launch_count": 20,
+          "total_device_time_us": 110.32600000000184,
+          "mean_device_time_us": 5.516300000000092
+        },
+        "eager_silu": {
+          "launch_count": 20,
+          "total_device_time_us": 142.45200000000045,
+          "mean_device_time_us": 7.1226000000000225
+        },
+        "external_gemm": {
+          "launch_count": 60,
+          "total_device_time_us": 5109.354000000001,
+          "mean_device_time_us": 85.15590000000002
+        }
+      }
+    },
+    "compiled": {
+      "profiled_invocations": 20,
+      "launch_count": 80,
+      "launches_per_invocation": 4.0,
+      "categories": {
+        "external_gemm": {
+          "launch_count": 60,
+          "total_device_time_us": 3993.774000000003,
+          "mean_device_time_us": 66.56290000000006
+        },
+        "generated_triton": {
+          "launch_count": 20,
+          "total_device_time_us": 168.7889999999977,
+          "mean_device_time_us": 8.439449999999885
+        }
+      }
+    }
+  }
+}

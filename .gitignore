@@ -23,6 +23,8 @@ artifacts/*
 !artifacts/graph_break_case/**
 !artifacts/sample_mlp_gpu/
 !artifacts/sample_mlp_gpu/**
+!artifacts/mlp_codegen/
+!artifacts/mlp_codegen/**
 
 # LaTeX build products; retain the checked-in guide PDF.
 *.aux
@@ -39,3 +41,5 @@ artifacts/*
 # Private planning material; the public roadmap lives in README.md.
 torchcompile_lab_guide.tex
 TorchCompile_Lab_Implementation_Guide.pdf
+torchcompile_mastery_book.tex
+torchcompile_mastery_book.pdf

@@ -10,6 +10,8 @@ The current implementation evaluates:
 - Numerical equivalence between eager and compiled execution.
 - Data-dependent control flow and graph fragmentation.
 - Compiler behavior on a gated transformer MLP.
+- Generated Inductor wrappers, external calls, Triton kernels, and launch counts.
+- Host enqueue time versus post-enqueue GPU completion time.
 
 All reported measurements include the workload shape, dtype, software version,
 hardware target, cache policy, and correctness result.
@@ -81,15 +83,41 @@ The benchmark uses a 4,718,592-parameter MLP, float16 input with shape
 | First compiled call | 1.55 s |
 
 Compiled execution was 17% slower in the primary run and 19% slower in a
-fresh-process repeat. Full-graph capture therefore did not produce a
-performance improvement for this configuration. The current evidence does not
-attribute the regression to a specific kernel or compiler transformation;
-generated-code and profiler analysis would be required for that conclusion.
+fresh-process repeat. A separate 500-iteration, alternating-order analysis
+described below reproduced the regression while isolating its runtime
+components.
 
 Artifacts: [summary](artifacts/sample_mlp_gpu/summary.md), [primary
 result](artifacts/sample_mlp_gpu/results.json), [repeat
 result](artifacts/sample_mlp_gpu/repeat_results.json), [FX
 graph](artifacts/sample_mlp_gpu/dynamo_fx_graph.py)
+
+### Inductor code generation and runtime breakdown
+
+The generated wrapper contains three external `mm` calls and one generated
+Triton kernel. Inductor leaves the gate, up, and down projections on external
+GEMM paths while fusing SiLU and multiplication into a single in-place kernel.
+
+| Structural result | Eager | Compiled |
+|---|---:|---:|
+| Kernel launches per invocation | 5 | 4 |
+| External GEMM calls | 3 | 3 |
+| Pointwise kernels | 2 | 1 |
+
+| Median runtime component | Eager | Compiled |
+|---|---:|---:|
+| Host enqueue | 51.21 µs | 94.53 µs |
+| Post-enqueue completion wait | 230.55 µs | 222.00 µs |
+| Synchronized total | 280.35 µs | 316.98 µs |
+
+The compiled path reduces launch count and post-enqueue completion time, but
+its additional host enqueue cost is larger than the completion-time reduction.
+The resulting synchronized speedup is `0.884×`, or an 11.6% regression, for
+this software, hardware, dtype, and shape.
+
+Artifacts: [analysis](artifacts/mlp_codegen/summary.md), [raw
+result](artifacts/mlp_codegen/results.json), [sanitized generated
+wrapper](artifacts/mlp_codegen/inductor_output_code.py)
 
 ## Methodology
 
@@ -105,6 +133,11 @@ graph](artifacts/sample_mlp_gpu/dynamo_fx_graph.py)
   steady-state savings.
 - FX graphs are collected with a custom `torch.compile` backend used only for
   inspection.
+- Generated wrapper calls are classified directly from an isolated Inductor
+  cache; absolute cache paths are removed from published source artifacts.
+- CUDA profiler events verify eager and compiled launch counts.
+- Runtime variants alternate measurement order and separate host enqueue from
+  post-enqueue completion wait.
 
 The included results are specific to the recorded hardware, software, dtype,
 and input shape. They are not portability or production-performance claims.
@@ -160,6 +193,21 @@ python -m compilelab \
   --output-dir artifacts/sample_mlp_gpu
 ```
 
+Generated-code and runtime analysis:
+
+```bash
+python -m compilelab.codegen \
+  --dtype float16 \
+  --batch-size 4 \
+  --sequence-length 128 \
+  --model-dim 768 \
+  --hidden-dim 2048 \
+  --warmup 50 \
+  --iterations 500 \
+  --profile-iterations 20 \
+  --output-dir artifacts/mlp_codegen
+```
+
 Each benchmark run writes:
 
 - `results.json`: environment, configuration, correctness, and timing data.
@@ -171,6 +219,7 @@ Each benchmark run writes:
 ```text
 compilelab/
   benchmark.py       Benchmark runner and artifact generation
+  codegen.py         Inductor wrapper and runtime analysis
   graph_break.py     Data-dependent control-flow experiment
   workload.py        Pointwise and gated-MLP workloads
 tests/
@@ -181,6 +230,6 @@ artifacts/           Curated benchmark and graph-capture results
 ## Current scope
 
 This repository currently covers compiler capture, graph breaks, timing
-methodology, and one transformer MLP component. It does not currently include
-quantization, sparsity, full-model evaluation, generated-kernel analysis, or
-production inference integration.
+methodology, generated-code inspection, launch profiling, and one transformer
+MLP component. It does not currently include quantization, sparsity, full-model
+evaluation, kernel-level Nsight analysis, or production inference integration.
