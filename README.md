@@ -14,6 +14,11 @@ The current implementation evaluates:
 - Host enqueue time versus post-enqueue GPU completion time.
 - Guard failures, recompilation counts, and dynamic-shape specialization.
 - Reversible gated-MLP projection packing with state, graph, and GPU evidence.
+- A minimal pre-norm transformer block with RMSNorm, causal attention,
+  residual connections, and a gated MLP.
+- Whole-block versus regional compilation and compile-mode selection.
+- TorchAO INT8 and FP8 quantization with latency, storage, quality, and
+  generated-kernel analysis.
 
 All reported measurements include the workload shape, dtype, software version,
 hardware target, cache policy, and correctness result.
@@ -154,6 +159,60 @@ graphs](artifacts/mlp_projection_packing/dynamo_graphs.py), [original
 wrapper](artifacts/mlp_projection_packing/original_inductor.py), [packed
 wrapper](artifacts/mlp_projection_packing/packed_inductor.py)
 
+### Minimal transformer block
+
+The block combines two RMSNorm layers, causal scaled-dot-product attention,
+residual connections, and a gated MLP at model dimension 768, 12 attention
+heads, and hidden dimension 2048. A reversible conversion packs Q/K/V and the
+MLP gate/up projections while preserving parameters and outputs.
+
+| Shape | Original eager | Original compiled | Packed compiled | Best packed mode | Best latency |
+|---|---:|---:|---:|---|---:|
+| `[1, 1, 768]` | 147.41 µs | 183.34 µs | 162.28 µs | `max-autotune` | 101.59 µs |
+| `[1, 128, 768]` | 169.83 µs | 217.00 µs | 185.86 µs | `reduce-overhead` | 175.95 µs |
+| `[4, 128, 768]` | 469.52 µs | 484.15 µs | 475.61 µs | `default` | 475.61 µs |
+
+Packing reduced external GEMMs from seven to four and profiled CUDA launches
+from twelve to nine at the representative shape. Default compiled packing was
+1.130×, 1.168×, and 1.018× faster than the original compiled block. Compiling
+the entire packed block was about 1.4× faster than compiling attention and MLP
+as separate regions for the two batch-one workloads, while the approaches tied
+at `[4, 128, 768]`. Manual RMSNorm decomposition did not reduce the generated
+launch count.
+
+Artifacts: [analysis](artifacts/transformer_optimization/summary.md), [raw
+result](artifacts/transformer_optimization/results.json), [before/after Dynamo
+graphs](artifacts/transformer_optimization/dynamo_graphs.py), [original
+wrapper](artifacts/transformer_optimization/original_inductor.py), [packed
+wrapper](artifacts/transformer_optimization/packed_inductor.py)
+
+### INT8 and FP8 quantization
+
+TorchAO quantization is applied to the packed BF16 transformer block before
+full-graph compilation with `max-autotune`. Each strategy runs in an isolated
+process and Inductor cache.
+
+| Strategy | Storage | `[1, 1, 768]` | `[1, 128, 768]` | `[4, 128, 768]` |
+|---|---:|---:|---:|---:|
+| BF16 | 13.50 MiB | 100.78 µs | 180.66 µs | 471.77 µs |
+| INT8 weight-only | 6.78 MiB | 118.59 µs | 9996.52 µs | 39937.19 µs |
+| Dynamic INT8 | 6.78 MiB | 109.65 µs | 173.87 µs | 340.93 µs |
+| FP8 weight-only | 6.78 MiB | 107.41 µs | 214.44 µs | 518.04 µs |
+| Dynamic FP8 | 6.75 MiB | 115.49 µs | 172.02 µs | 314.74 µs |
+
+Dynamic INT8 achieved 1.039× and 1.384× prefill speedups; dynamic FP8 achieved
+1.050× and 1.499×. None of the quantized paths improved single-token decode.
+All quantized models reduced storage by approximately 2× and exceeded 0.9998
+cosine similarity. The slow INT8 weight-only prefill path uses
+`_weight_int8pack_mm` on this backend and demonstrates that reduced precision
+does not guarantee lower latency.
+
+Artifacts: [analysis](artifacts/transformer_quantization/summary.md), [raw
+result](artifacts/transformer_quantization/results.json), [BF16
+wrapper](artifacts/transformer_quantization/bf16_inductor.py), [INT8
+wrapper](artifacts/transformer_quantization/int8_inductor.py), [FP8
+wrapper](artifacts/transformer_quantization/fp8_inductor.py)
+
 ### Dynamic-shape specialization
 
 A controlled gated-MLP experiment varies sequence length across
@@ -202,6 +261,11 @@ graphs](artifacts/dynamic_shapes/automatic_graphs.py)
 - Projection packing uses a one-time state conversion, equal parameter counts,
   identical inputs, isolated Inductor caches, alternating measurement order,
   multiple shape regimes, and eager/compiled correctness checks.
+- Transformer strategies run in fresh processes and isolated Inductor caches;
+  the mode matrix covers default, CUDA-graph-oriented, autotuned, no-CUDA-graph,
+  and shape-padding configurations.
+- Quantization reports model storage, cosine similarity, SQNR, generated external
+  calls, and latency against a compiled BF16 reference.
 
 The included results are specific to the recorded hardware, software, dtype,
 and input shape. They are not portability or production-performance claims.
@@ -218,6 +282,12 @@ source .venv/bin/activate
 # Install PyTorch for the target platform first.
 pip install -e ".[dev]"
 python -m pytest
+```
+
+Install TorchAO for the quantization experiment:
+
+```bash
+pip install -e ".[quantization]"
 ```
 
 ## Usage
@@ -295,6 +365,32 @@ python -m compilelab.projection_packing \
   --output-dir artifacts/mlp_projection_packing
 ```
 
+Minimal transformer optimization analysis:
+
+```bash
+python -m compilelab.transformer_optimization \
+  --cases 1x1,1x128,4x128 \
+  --model-dim 768 \
+  --num-heads 12 \
+  --hidden-dim 2048 \
+  --warmup 30 \
+  --iterations 300 \
+  --output-dir artifacts/transformer_optimization
+```
+
+Transformer quantization analysis:
+
+```bash
+python -m compilelab.quantization \
+  --cases 1x1,1x128,4x128 \
+  --model-dim 768 \
+  --num-heads 12 \
+  --hidden-dim 2048 \
+  --warmup 30 \
+  --iterations 300 \
+  --output-dir artifacts/transformer_quantization
+```
+
 Artifact directories contain:
 
 - `results.json`: environment, configuration, correctness, and measured data.
@@ -309,7 +405,10 @@ compilelab/
   codegen.py         Inductor wrapper and runtime analysis
   dynamic_shapes.py  Guard and shape-specialization analysis
   graph_break.py     Data-dependent control-flow experiment
+  quantization.py    TorchAO INT8 and FP8 comparison
   projection_packing.py  Gated-MLP state conversion and GPU comparison
+  transformer.py     Minimal and projection-packed transformer blocks
+  transformer_optimization.py  Compile-mode and fusion analysis
   workload.py        Pointwise and gated-MLP workloads
 tests/
   test_compilelab.py Correctness and graph-capture tests
@@ -320,6 +419,7 @@ artifacts/           Curated benchmark and graph-capture results
 
 This repository currently covers compiler capture, graph breaks, timing
 methodology, generated-code inspection, launch profiling, dynamic-shape
-specialization, and a measured gated-MLP projection-packing transformation. It
-does not currently include quantization, sparsity, full-model evaluation,
-kernel-level Nsight analysis, or production inference integration.
+specialization, transformer projection packing, compilation boundaries,
+compile-mode selection, RMSNorm lowering, and TorchAO INT8/FP8 quantization. It
+does not currently cover sparsity, full-model evaluation, kernel-level Nsight
+analysis, training optimization, or production inference integration.

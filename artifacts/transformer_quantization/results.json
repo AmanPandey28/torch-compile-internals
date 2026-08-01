@@ -1,0 +1,1491 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-08-01T00:57:14.356574+00:00",
+  "environment": {
+    "python": "3.12.12",
+    "platform": "Linux-7.0.0-28-generic-x86_64-with-glibc2.39",
+    "torch": "2.12.0+cu130",
+    "torch_cuda_runtime": "13.0",
+    "device": "cuda",
+    "cuda_available": true,
+    "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+    "compute_capability": [
+      12,
+      0
+    ],
+    "torchao": "0.17.0"
+  },
+  "experiment": {
+    "workload": "packed minimal transformer block",
+    "baseline_dtype": "bfloat16",
+    "compile_mode": "max-autotune",
+    "model_dim": 768,
+    "num_heads": 12,
+    "hidden_dim": 2048,
+    "rms_norm_eps": 1e-06,
+    "seed": 0,
+    "warmup": 30,
+    "iterations": 300,
+    "profile_iterations": 10,
+    "quality_threshold_cosine": 0.99,
+    "isolated_process_per_strategy": true,
+    "isolated_inductor_cache": true
+  },
+  "representative_case_index": 2,
+  "cases": [
+    {
+      "shape": [
+        1,
+        1,
+        768
+      ],
+      "strategies": {
+        "bf16": {
+          "strategy": "bf16",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 14158848,
+          "quantization_seconds": 0.0,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.015625,
+            "mean_abs_error": 0.001695652841590345,
+            "root_mean_square_error": 0.0032540372484173184,
+            "cosine_similarity": 0.9999949932098389,
+            "sqnr_db": 50.00261092202337
+          },
+          "first_call_ms": 8701.990772009594,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 79.10499698482454,
+              "p90_us": 88.00000068731606,
+              "min_us": 73.4269997337833,
+              "max_us": 145.61500574927777
+            },
+            "completion_wait": {
+              "median_us": 21.709995053242892,
+              "p90_us": 22.409993107430637,
+              "min_us": 13.885990483686328,
+              "max_us": 139.746000058949
+            },
+            "synchronized_total": {
+              "median_us": 100.7805039989762,
+              "p90_us": 110.79599789809436,
+              "min_us": 95.48600064590573,
+              "max_us": 219.27400666754693
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 56.41700000000037,
+                "mean_device_time_us": 5.6417000000000375
+              },
+              "generated_triton": {
+                "launch_count": 90,
+                "total_device_time_us": 276.2570000000003,
+                "mean_device_time_us": 3.0695222222222256
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 9.822999999998956,
+                "mean_device_time_us": 0.9822999999998956
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {},
+            "external_kernel_call_count": 0,
+            "triton_kernel_launch_count": 9,
+            "wrapper_launch_site_count": 9,
+            "buffer_reuse_count": 2,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1"
+            ]
+          }
+        },
+        "int8_weight_only": {
+          "strategy": "int8_weight_only",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7104768,
+          "quantization_seconds": 0.10718785299104638,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.015625,
+            "mean_abs_error": 0.002489944454282522,
+            "root_mean_square_error": 0.003913385097901172,
+            "cosine_similarity": 0.9999927282333374,
+            "sqnr_db": 48.400009582732515
+          },
+          "first_call_ms": 18307.657231998746,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 97.59300155565143,
+              "p90_us": 107.43399616330862,
+              "min_us": 90.81799362320453,
+              "max_us": 150.65600746311247
+            },
+            "completion_wait": {
+              "median_us": 20.78000397887081,
+              "p90_us": 21.620988263748586,
+              "min_us": 13.507000403478742,
+              "max_us": 182.49799904879183
+            },
+            "synchronized_total": {
+              "median_us": 118.59099322464317,
+              "p90_us": 129.75299614481628,
+              "min_us": 112.23599722143263,
+              "max_us": 288.7559967348352
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 55.67999999999938,
+                "mean_device_time_us": 5.567999999999938
+              },
+              "generated_triton": {
+                "launch_count": 90,
+                "total_device_time_us": 247.61399999999753,
+                "mean_device_time_us": 2.7512666666666394
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 10.111000000000331,
+                "mean_device_time_us": 1.0111000000000332
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {},
+            "external_kernel_call_count": 0,
+            "triton_kernel_launch_count": 9,
+            "wrapper_launch_site_count": 9,
+            "buffer_reuse_count": 1,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1"
+            ]
+          }
+        },
+        "int8_dynamic": {
+          "strategy": "int8_dynamic",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7104768,
+          "quantization_seconds": 0.10923891299171373,
+          "dynamic_int8_decode_fallback": true,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.015625,
+            "mean_abs_error": 0.002489944454282522,
+            "root_mean_square_error": 0.003913385097901172,
+            "cosine_similarity": 0.9999927282333374,
+            "sqnr_db": 48.400009582732515
+          },
+          "first_call_ms": 17463.058096007444,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 92.00500062434003,
+              "p90_us": 97.6470037130639,
+              "min_us": 88.66599819157273,
+              "max_us": 111.51900980621576
+            },
+            "completion_wait": {
+              "median_us": 17.496997315902263,
+              "p90_us": 17.974001821130514,
+              "min_us": 11.972995707765222,
+              "max_us": 161.01798973977566
+            },
+            "synchronized_total": {
+              "median_us": 109.65099500026554,
+              "p90_us": 115.98301352933049,
+              "min_us": 106.41600238159299,
+              "max_us": 253.88799258507788
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 52.57599999999957,
+                "mean_device_time_us": 5.2575999999999565
+              },
+              "generated_triton": {
+                "launch_count": 90,
+                "total_device_time_us": 219.4570000000026,
+                "mean_device_time_us": 2.43841111111114
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 8.735999999999876,
+                "mean_device_time_us": 0.8735999999999876
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {},
+            "external_kernel_call_count": 0,
+            "triton_kernel_launch_count": 9,
+            "wrapper_launch_site_count": 9,
+            "buffer_reuse_count": 1,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1"
+            ]
+          }
+        },
+        "fp8_weight_only": {
+          "strategy": "fp8_weight_only",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7112704,
+          "quantization_seconds": 0.046479117998387665,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.046875,
+            "mean_abs_error": 0.010500207543373108,
+            "root_mean_square_error": 0.013358788784171046,
+            "cosine_similarity": 0.9999160170555115,
+            "sqnr_db": 37.73571965503802
+          },
+          "first_call_ms": 33811.44354300341,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 89.82500003185123,
+              "p90_us": 100.75200407300144,
+              "min_us": 78.51200643926859,
+              "max_us": 127.54400086123496
+            },
+            "completion_wait": {
+              "median_us": 17.419501091353595,
+              "p90_us": 18.382997950538993,
+              "min_us": 11.712996638379991,
+              "max_us": 170.33200128935277
+            },
+            "synchronized_total": {
+              "median_us": 107.41499863797799,
+              "p90_us": 119.46499580517411,
+              "min_us": 96.84800170361996,
+              "max_us": 257.71000946406275
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 54.04899999999952,
+                "mean_device_time_us": 5.4048999999999525
+              },
+              "generated_triton": {
+                "launch_count": 90,
+                "total_device_time_us": 220.80199999999968,
+                "mean_device_time_us": 2.453355555555552
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 8.704000000000178,
+                "mean_device_time_us": 0.8704000000000178
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {},
+            "external_kernel_call_count": 0,
+            "triton_kernel_launch_count": 9,
+            "wrapper_launch_site_count": 9,
+            "buffer_reuse_count": 2,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1"
+            ]
+          }
+        },
+        "fp8_dynamic": {
+          "strategy": "fp8_dynamic",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7080976,
+          "quantization_seconds": 0.05141494399867952,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.0625,
+            "mean_abs_error": 0.014855703338980675,
+            "root_mean_square_error": 0.018613696378900018,
+            "cosine_similarity": 0.9998366832733154,
+            "sqnr_db": 34.85440880949344
+          },
+          "first_call_ms": 5855.338428998948,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 93.40650285594165,
+              "p90_us": 102.38301183562726,
+              "min_us": 87.56799797993153,
+              "max_us": 151.7509954283014
+            },
+            "completion_wait": {
+              "median_us": 22.12850085925311,
+              "p90_us": 22.82600325997919,
+              "min_us": 16.11899642739445,
+              "max_us": 116.06300540734082
+            },
+            "synchronized_total": {
+              "median_us": 115.487004222814,
+              "p90_us": 125.05899940151721,
+              "min_us": 110.07199645973742,
+              "max_us": 235.7299963477999
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 40,
+                "total_device_time_us": 169.69999999999936,
+                "mean_device_time_us": 4.242499999999984
+              },
+              "generated_triton": {
+                "launch_count": 50,
+                "total_device_time_us": 52.54399999999782,
+                "mean_device_time_us": 1.0508799999999565
+              },
+              "other": {
+                "launch_count": 20,
+                "total_device_time_us": 115.64699999999993,
+                "mean_device_time_us": 5.7823499999999965
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "_scaled_mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 5,
+            "wrapper_launch_site_count": 9,
+            "buffer_reuse_count": 7,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm, linear",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "shape": [
+        1,
+        128,
+        768
+      ],
+      "strategies": {
+        "bf16": {
+          "strategy": "bf16",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 14158848,
+          "quantization_seconds": 0.0,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.03125,
+            "mean_abs_error": 0.0013129077851772308,
+            "root_mean_square_error": 0.002953473313230667,
+            "cosine_similarity": 0.9999957084655762,
+            "sqnr_db": 50.674860032377616
+          },
+          "first_call_ms": 3707.8300259890966,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 82.33550761360675,
+              "p90_us": 97.71899203769863,
+              "min_us": 74.3830023566261,
+              "max_us": 139.90300067234784
+            },
+            "completion_wait": {
+              "median_us": 99.43451004801318,
+              "p90_us": 102.84800373483449,
+              "min_us": 82.29300146922469,
+              "max_us": 233.32600540015846
+            },
+            "synchronized_total": {
+              "median_us": 180.65550102619454,
+              "p90_us": 196.56399672385305,
+              "min_us": 171.36499809566885,
+              "max_us": 310.57599699124694
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 966.4370000000006,
+                "mean_device_time_us": 19.32874000000001
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 68.09200000000192,
+                "mean_device_time_us": 1.7023000000000479
+              },
+              "other": {
+                "launch_count": 20,
+                "total_device_time_us": 83.16900000000078,
+                "mean_device_time_us": 4.158450000000039
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "int8_weight_only": {
+          "strategy": "int8_weight_only",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7104768,
+          "quantization_seconds": 0.11255808899295516,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.03125,
+            "mean_abs_error": 0.001569194719195366,
+            "root_mean_square_error": 0.0031271878072856346,
+            "cosine_similarity": 0.999995231628418,
+            "sqnr_db": 50.17844177051145
+          },
+          "first_call_ms": 7688.924889996997,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 188.82150470744818,
+              "p90_us": 272.0549964578822,
+              "min_us": 126.67699775192887,
+              "max_us": 481.54899559449404
+            },
+            "completion_wait": {
+              "median_us": 9799.232495424803,
+              "p90_us": 10561.885996139608,
+              "min_us": 9355.853995657526,
+              "max_us": 11567.212000954896
+            },
+            "synchronized_total": {
+              "median_us": 9996.517008403316,
+              "p90_us": 10729.660993092693,
+              "min_us": 9542.280007735826,
+              "max_us": 11783.025009208359
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 220,
+            "launches_per_invocation": 22.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 61.40899999998237,
+                "mean_device_time_us": 6.140899999998237
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 66.14300000000298,
+                "mean_device_time_us": 1.6535750000000746
+              },
+              "other": {
+                "launch_count": 170,
+                "total_device_time_us": 95787.95799999997,
+                "mean_device_time_us": 563.4585764705881
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "_weight_int8pack_mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 2,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "int8_dynamic": {
+          "strategy": "int8_dynamic",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7104768,
+          "quantization_seconds": 0.10781962699547876,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.03125,
+            "mean_abs_error": 0.002520084148272872,
+            "root_mean_square_error": 0.003976644425125551,
+            "cosine_similarity": 0.9999921917915344,
+            "sqnr_db": 48.0911858547079
+          },
+          "first_call_ms": 33207.463476006524,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 98.12800271902233,
+              "p90_us": 110.65200669690967,
+              "min_us": 89.76800017990172,
+              "max_us": 184.21499407850206
+            },
+            "completion_wait": {
+              "median_us": 75.61050006188452,
+              "p90_us": 76.62300777155906,
+              "min_us": 61.56899326015264,
+              "max_us": 212.6800100086257
+            },
+            "synchronized_total": {
+              "median_us": 173.8725113682449,
+              "p90_us": 185.75000285636634,
+              "min_us": 166.08100850135088,
+              "max_us": 326.13700022920966
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 160,
+            "launches_per_invocation": 16.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 434.49299999999903,
+                "mean_device_time_us": 8.68985999999998
+              },
+              "generated_triton": {
+                "launch_count": 100,
+                "total_device_time_us": 386.2069999999967,
+                "mean_device_time_us": 3.862069999999967
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 55.23299999999972,
+                "mean_device_time_us": 5.523299999999972
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "_int_mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 10,
+            "wrapper_launch_site_count": 14,
+            "buffer_reuse_count": 8,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm, linear",
+              "linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_3",
+              "linear_3, add_1",
+              "rms_norm, linear",
+              "linear",
+              "linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2",
+              "linear_2",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_3",
+              "linear_3",
+              "linear_3, add_1"
+            ]
+          }
+        },
+        "fp8_weight_only": {
+          "strategy": "fp8_weight_only",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7112704,
+          "quantization_seconds": 0.04662601000745781,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.046875,
+            "mean_abs_error": 0.004486757796257734,
+            "root_mean_square_error": 0.006198071940247501,
+            "cosine_similarity": 0.9999811053276062,
+            "sqnr_db": 44.23638879862039
+          },
+          "first_call_ms": 9929.48642699048,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 92.55649638362229,
+              "p90_us": 106.73799260985106,
+              "min_us": 84.24599946010858,
+              "max_us": 140.49500168766826
+            },
+            "completion_wait": {
+              "median_us": 121.76199379609898,
+              "p90_us": 126.20400229934603,
+              "min_us": 102.98399138264358,
+              "max_us": 265.3819974511862
+            },
+            "synchronized_total": {
+              "median_us": 214.4424943253398,
+              "p90_us": 229.3980069225654,
+              "min_us": 206.5479930024594,
+              "max_us": 374.1109976544976
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 150,
+            "launches_per_invocation": 15.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 981.1860000000001,
+                "mean_device_time_us": 19.623720000000002
+              },
+              "generated_triton": {
+                "launch_count": 80,
+                "total_device_time_us": 286.55899999999974,
+                "mean_device_time_us": 3.5819874999999968
+              },
+              "other": {
+                "launch_count": 20,
+                "total_device_time_us": 88.00200000000109,
+                "mean_device_time_us": 4.400100000000054
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 8,
+            "wrapper_launch_site_count": 12,
+            "buffer_reuse_count": 4,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear",
+              "linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_3",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "linear",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear_1",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "fp8_dynamic": {
+          "strategy": "fp8_dynamic",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7080976,
+          "quantization_seconds": 0.047232398006599396,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.0634765625,
+            "mean_abs_error": 0.006368438713252544,
+            "root_mean_square_error": 0.008466821770042945,
+            "cosine_similarity": 0.9999648332595825,
+            "sqnr_db": 41.52711269737287
+          },
+          "first_call_ms": 21533.070265009883,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 94.9260065681301,
+              "p90_us": 106.87099711503834,
+              "min_us": 87.04900392331183,
+              "max_us": 154.84300092794
+            },
+            "completion_wait": {
+              "median_us": 76.89400081289932,
+              "p90_us": 78.94000736996531,
+              "min_us": 64.02700091712177,
+              "max_us": 213.5090035153553
+            },
+            "synchronized_total": {
+              "median_us": 172.021500475239,
+              "p90_us": 184.76801051292568,
+              "min_us": 164.2059942241758,
+              "max_us": 312.93899519369006
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 190,
+            "launches_per_invocation": 19.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 57.85599999999977,
+                "mean_device_time_us": 5.7855999999999765
+              },
+              "generated_triton": {
+                "launch_count": 130,
+                "total_device_time_us": 170.16999999999825,
+                "mean_device_time_us": 1.3089999999999866
+              },
+              "other": {
+                "launch_count": 50,
+                "total_device_time_us": 663.5839999999957,
+                "mean_device_time_us": 13.271679999999915
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "_scaled_mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 13,
+            "wrapper_launch_site_count": 17,
+            "buffer_reuse_count": 12,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "shape": [
+        4,
+        128,
+        768
+      ],
+      "strategies": {
+        "bf16": {
+          "strategy": "bf16",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 14158848,
+          "quantization_seconds": 0.0,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.03125,
+            "mean_abs_error": 0.0013001968618482351,
+            "root_mean_square_error": 0.002941514397236092,
+            "cosine_similarity": 0.9999957084655762,
+            "sqnr_db": 50.687043123614444
+          },
+          "first_call_ms": 4201.069921997259,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 85.35700908396393,
+              "p90_us": 104.33999705128372,
+              "min_us": 76.24400313943624,
+              "max_us": 153.64200226031244
+            },
+            "completion_wait": {
+              "median_us": 388.28550168545917,
+              "p90_us": 391.6380082955584,
+              "min_us": 295.9769917652011,
+              "max_us": 577.147991862148
+            },
+            "synchronized_total": {
+              "median_us": 471.7744959634729,
+              "p90_us": 493.8609927194193,
+              "min_us": 396.89500408712775,
+              "max_us": 673.2180045219138
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 100,
+            "launches_per_invocation": 10.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 3726.5000000000027,
+                "mean_device_time_us": 74.53000000000006
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 179.13499999999954,
+                "mean_device_time_us": 4.478374999999988
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 82.75200000000063,
+                "mean_device_time_us": 8.275200000000064
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "int8_weight_only": {
+          "strategy": "int8_weight_only",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7104768,
+          "quantization_seconds": 0.11721339500218164,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.03125,
+            "mean_abs_error": 0.0015749861486256123,
+            "root_mean_square_error": 0.0031322078019326064,
+            "cosine_similarity": 0.9999951124191284,
+            "sqnr_db": 50.14145135125918
+          },
+          "first_call_ms": 7992.9454189987155,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 240.29649648582563,
+              "p90_us": 362.08899109624326,
+              "min_us": 162.31299377977848,
+              "max_us": 727.8349949046969
+            },
+            "completion_wait": {
+              "median_us": 39674.37399842311,
+              "p90_us": 40357.75900410954,
+              "min_us": 37768.241003504954,
+              "max_us": 43303.91899566166
+            },
+            "synchronized_total": {
+              "median_us": 39937.18700075988,
+              "p90_us": 40603.94900443498,
+              "min_us": 38144.649006426334,
+              "max_us": 43514.838005648926
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 220,
+            "launches_per_invocation": 22.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 130.81600000003345,
+                "mean_device_time_us": 13.081600000003345
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 192.9259999998917,
+                "mean_device_time_us": 4.823149999997293
+              },
+              "other": {
+                "launch_count": 170,
+                "total_device_time_us": 394081.1400000003,
+                "mean_device_time_us": 2318.124352941178
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "_weight_int8pack_mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 2,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "int8_dynamic": {
+          "strategy": "int8_dynamic",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7104768,
+          "quantization_seconds": 0.11067095599719323,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.03125,
+            "mean_abs_error": 0.0025328118354082108,
+            "root_mean_square_error": 0.003984017117932217,
+            "cosine_similarity": 0.9999922513961792,
+            "sqnr_db": 48.05203877590438
+          },
+          "first_call_ms": 41156.90995600016,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 101.4500085148029,
+              "p90_us": 120.39500870741904,
+              "min_us": 93.97299436386675,
+              "max_us": 205.98700211849064
+            },
+            "completion_wait": {
+              "median_us": 239.5804986008443,
+              "p90_us": 244.47198666166514,
+              "min_us": 196.79400429595262,
+              "max_us": 416.05200385674834
+            },
+            "synchronized_total": {
+              "median_us": 340.9275013837032,
+              "p90_us": 358.0070042517036,
+              "min_us": 304.5920020667836,
+              "max_us": 520.8490038057789
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 160,
+            "launches_per_invocation": 16.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 1522.7210000000036,
+                "mean_device_time_us": 30.454420000000074
+              },
+              "generated_triton": {
+                "launch_count": 100,
+                "total_device_time_us": 812.7660000000042,
+                "mean_device_time_us": 8.127660000000041
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 66.30700000000024,
+                "mean_device_time_us": 6.630700000000024
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "_int_mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 10,
+            "wrapper_launch_site_count": 14,
+            "buffer_reuse_count": 8,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm, linear",
+              "linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_3",
+              "linear_3, add_1",
+              "rms_norm, linear",
+              "linear",
+              "linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2",
+              "linear_2",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_3",
+              "linear_3",
+              "linear_3, add_1"
+            ]
+          }
+        },
+        "fp8_weight_only": {
+          "strategy": "fp8_weight_only",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7112704,
+          "quantization_seconds": 0.053096954987267964,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.046875,
+            "mean_abs_error": 0.0044855233281850815,
+            "root_mean_square_error": 0.006190253486629074,
+            "cosine_similarity": 0.9999811053276062,
+            "sqnr_db": 44.22429402235595
+          },
+          "first_call_ms": 9406.593678009813,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 97.30450256029144,
+              "p90_us": 118.65299893543124,
+              "min_us": 88.98200758267194,
+              "max_us": 327.99100154079497
+            },
+            "completion_wait": {
+              "median_us": 418.93250454450026,
+              "p90_us": 429.2550001991913,
+              "min_us": 307.3159896302968,
+              "max_us": 598.8839984638616
+            },
+            "synchronized_total": {
+              "median_us": 518.0410007596947,
+              "p90_us": 546.0980028146878,
+              "min_us": 417.60000749491155,
+              "max_us": 693.8160076970235
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 140,
+            "launches_per_invocation": 14.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 3708.7650000000012,
+                "mean_device_time_us": 74.17530000000002
+              },
+              "generated_triton": {
+                "launch_count": 80,
+                "total_device_time_us": 439.83899999999835,
+                "mean_device_time_us": 5.497987499999979
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 79.04300000000035,
+                "mean_device_time_us": 7.904300000000035
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 8,
+            "wrapper_launch_site_count": 12,
+            "buffer_reuse_count": 4,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear",
+              "linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_3",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "linear",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear_1",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "fp8_dynamic": {
+          "strategy": "fp8_dynamic",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "torchao": "0.17.0",
+          "storage_bytes": 7080976,
+          "quantization_seconds": 0.05321165900386404,
+          "dynamic_int8_decode_fallback": false,
+          "quality": {
+            "finite": true,
+            "max_abs_error": 0.06640625,
+            "mean_abs_error": 0.006260310299694538,
+            "root_mean_square_error": 0.00833881304801845,
+            "cosine_similarity": 0.9999657273292542,
+            "sqnr_db": 41.63637794560365
+          },
+          "first_call_ms": 29724.402114006807,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 106.71099880710244,
+              "p90_us": 139.93200263939798,
+              "min_us": 94.00099224876612,
+              "max_us": 371.1589961312711
+            },
+            "completion_wait": {
+              "median_us": 208.69250147370622,
+              "p90_us": 212.26600802037865,
+              "min_us": 157.67000149935484,
+              "max_us": 370.570007362403
+            },
+            "synchronized_total": {
+              "median_us": 314.7409952362068,
+              "p90_us": 345.41499917395413,
+              "min_us": 277.6259934762493,
+              "max_us": 538.6419943533838
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 190,
+            "launches_per_invocation": 19.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 139.19999999999936,
+                "mean_device_time_us": 13.919999999999936
+              },
+              "generated_triton": {
+                "launch_count": 130,
+                "total_device_time_us": 378.11200000000235,
+                "mean_device_time_us": 2.9085538461538643
+              },
+              "other": {
+                "launch_count": 50,
+                "total_device_time_us": 1609.8239999999978,
+                "mean_device_time_us": 32.19647999999996
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "_scaled_mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 13,
+            "wrapper_launch_site_count": 17,
+            "buffer_reuse_count": 12,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

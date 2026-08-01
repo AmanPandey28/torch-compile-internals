@@ -17,6 +17,14 @@ from compilelab.graph_break import (
     fullgraph_failure,
 )
 from compilelab.projection_packing import parse_cases
+from compilelab.quantization import quality_statistics
+from compilelab.transformer import (
+    DecomposedRMSNorm,
+    PackedSelfAttention,
+    PackedTransformerBlock,
+    SelfAttention,
+    TransformerBlock,
+)
 from compilelab.workload import (
     GatedMLP,
     PackedGatedMLP,
@@ -238,3 +246,100 @@ def test_packed_gated_mlp_supports_fullgraph_compilation() -> None:
         torch.compiler.reset()
 
     torch.testing.assert_close(actual, reference)
+
+
+def test_packed_qkv_preserves_state_outputs_and_gradients() -> None:
+    torch.manual_seed(7)
+    original = SelfAttention(model_dim=8, num_heads=2).eval()
+    packed = PackedSelfAttention.from_unpacked(original)
+    restored = packed.to_unpacked()
+
+    torch.testing.assert_close(
+        packed.qkv_proj.weight,
+        torch.cat(
+            (
+                original.q_proj.weight,
+                original.k_proj.weight,
+                original.v_proj.weight,
+            ),
+            dim=0,
+        ),
+        rtol=0,
+        atol=0,
+    )
+    for name, parameter in original.named_parameters():
+        torch.testing.assert_close(
+            parameter, dict(restored.named_parameters())[name], rtol=0, atol=0
+        )
+
+    original_input = torch.randn(2, 4, 8, requires_grad=True)
+    packed_input = original_input.detach().clone().requires_grad_(True)
+    original_output = original(original_input)
+    packed_output = packed(packed_input)
+    torch.testing.assert_close(packed_output, original_output)
+
+    original_output.square().mean().backward()
+    packed_output.square().mean().backward()
+    torch.testing.assert_close(packed_input.grad, original_input.grad)
+    query_grad, key_grad, value_grad = packed.qkv_proj.weight.grad.chunk(3)
+    torch.testing.assert_close(query_grad, original.q_proj.weight.grad)
+    torch.testing.assert_close(key_grad, original.k_proj.weight.grad)
+    torch.testing.assert_close(value_grad, original.v_proj.weight.grad)
+    torch.testing.assert_close(
+        packed.out_proj.weight.grad, original.out_proj.weight.grad
+    )
+
+
+def test_packed_transformer_block_round_trip_and_fullgraph() -> None:
+    torch.manual_seed(7)
+    original = TransformerBlock(
+        model_dim=8, num_heads=2, hidden_dim=16
+    ).eval()
+    packed = PackedTransformerBlock.from_unpacked(original)
+    restored = packed.to_unpacked()
+    inputs = torch.randn(2, 4, 8)
+
+    for name, parameter in original.named_parameters():
+        torch.testing.assert_close(
+            parameter, dict(restored.named_parameters())[name], rtol=0, atol=0
+        )
+
+    torch.compiler.reset()
+    try:
+        with torch.inference_mode():
+            reference = original(inputs)
+            packed_eager = packed(inputs)
+            compiled = torch.compile(packed, backend="eager", fullgraph=True)
+            packed_compiled = compiled(inputs)
+    finally:
+        torch.compiler.reset()
+
+    torch.testing.assert_close(packed_eager, reference)
+    torch.testing.assert_close(packed_compiled, reference)
+
+
+def test_decomposed_rms_norm_matches_native_rms_norm() -> None:
+    torch.manual_seed(7)
+    native = torch.nn.RMSNorm(8, eps=1e-6)
+    decomposed = DecomposedRMSNorm(8, eps=1e-6)
+    with torch.no_grad():
+        decomposed.weight.copy_(native.weight)
+    inputs = torch.randn(2, 4, 8)
+
+    torch.testing.assert_close(decomposed(inputs), native(inputs))
+
+
+def test_quantization_quality_statistics() -> None:
+    reference = torch.tensor([1.0, 2.0])
+    actual = torch.tensor([1.0, 1.0])
+
+    result = quality_statistics(reference, actual)
+
+    assert result["finite"]
+    assert result["max_abs_error"] == 1.0
+    assert result["mean_abs_error"] == 0.5
+    assert result["root_mean_square_error"] == 2**-0.5
+    assert result["cosine_similarity"] == torch.nn.functional.cosine_similarity(
+        reference, actual, dim=0
+    )
+    assert result["sqnr_db"] is not None

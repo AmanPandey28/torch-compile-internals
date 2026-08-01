@@ -29,6 +29,10 @@ artifacts/*
 !artifacts/dynamic_shapes/**
 !artifacts/mlp_projection_packing/
 !artifacts/mlp_projection_packing/**
+!artifacts/transformer_optimization/
+!artifacts/transformer_optimization/**
+!artifacts/transformer_quantization/
+!artifacts/transformer_quantization/**
 artifacts/**/__pycache__/
 
 # LaTeX build products.

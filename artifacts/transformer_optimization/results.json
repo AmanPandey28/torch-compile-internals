@@ -1,0 +1,2294 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-08-01T00:38:54.187440+00:00",
+  "environment": {
+    "python": "3.12.12",
+    "platform": "Linux-7.0.0-28-generic-x86_64-with-glibc2.39",
+    "torch": "2.12.0+cu130",
+    "torch_cuda_runtime": "13.0",
+    "device": "cuda",
+    "cuda_available": true,
+    "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+    "compute_capability": [
+      12,
+      0
+    ]
+  },
+  "experiment": {
+    "workload": "minimal pre-norm causal transformer block",
+    "model_dim": 768,
+    "num_heads": 12,
+    "head_dim": 64,
+    "hidden_dim": 2048,
+    "rms_norm_eps": 1e-06,
+    "dtype": "float16",
+    "seed": 0,
+    "warmup": 30,
+    "iterations": 300,
+    "profile_iterations": 10,
+    "isolated_process_per_strategy": true,
+    "isolated_inductor_cache": true
+  },
+  "representative_case_index": 2,
+  "cases": [
+    {
+      "shape": [
+        1,
+        1,
+        768
+      ],
+      "strategies": {
+        "original_eager": {
+          "strategy": "original_eager",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.0,
+            "mean_abs_error": 0.0
+          },
+          "first_call_ms": null,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 136.3849951303564,
+              "p90_us": 156.85400285292417,
+              "min_us": 123.09099838603288,
+              "max_us": 480.945993331261
+            },
+            "completion_wait": {
+              "median_us": 11.054493370465934,
+              "p90_us": 14.613004168495536,
+              "min_us": 6.30300201009959,
+              "max_us": 171.61600408144295
+            },
+            "synchronized_total": {
+              "median_us": 147.40850019734353,
+              "p90_us": 174.45000412408262,
+              "min_us": 137.20399874728173,
+              "max_us": 517.4450052436441
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 140,
+            "launches_per_invocation": 14.0,
+            "categories": {
+              "eager_multiply": {
+                "launch_count": 10,
+                "total_device_time_us": 7.551999999999225,
+                "mean_device_time_us": 0.7551999999999225
+              },
+              "eager_silu": {
+                "launch_count": 10,
+                "total_device_time_us": 10.371000000001004,
+                "mean_device_time_us": 1.0371000000001005
+              },
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 53.82699999999977,
+                "mean_device_time_us": 5.382699999999977
+              },
+              "other": {
+                "launch_count": 110,
+                "total_device_time_us": 776.0090000000014,
+                "mean_device_time_us": 7.054627272727285
+              }
+            }
+          },
+          "inductor_wrapper": null
+        },
+        "packed_eager": {
+          "strategy": "packed_eager",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 4.490216724661877e-06
+          },
+          "first_call_ms": null,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 105.07499246159568,
+              "p90_us": 112.95398871880025,
+              "min_us": 101.05800174642354,
+              "max_us": 135.7000001007691
+            },
+            "completion_wait": {
+              "median_us": 7.8434968600049615,
+              "p90_us": 9.78801108431071,
+              "min_us": 6.639995262958109,
+              "max_us": 153.41500693466514
+            },
+            "synchronized_total": {
+              "median_us": 113.39149932609871,
+              "p90_us": 124.47898916434497,
+              "min_us": 108.60699694603682,
+              "max_us": 257.69999774638563
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "eager_multiply": {
+                "launch_count": 10,
+                "total_device_time_us": 7.519000000000233,
+                "mean_device_time_us": 0.7519000000000233
+              },
+              "eager_silu": {
+                "launch_count": 10,
+                "total_device_time_us": 10.688999999998941,
+                "mean_device_time_us": 1.068899999999894
+              },
+              "external_gemm": {
+                "launch_count": 20,
+                "total_device_time_us": 152.77199999999948,
+                "mean_device_time_us": 7.638599999999974
+              },
+              "other": {
+                "launch_count": 70,
+                "total_device_time_us": 420.9680000000003,
+                "mean_device_time_us": 6.013828571428576
+              }
+            }
+          },
+          "inductor_wrapper": null
+        },
+        "original_default": {
+          "strategy": "original_default",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.00016026696539483964
+          },
+          "first_call_ms": 2957.174455994391,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 172.98549937549978,
+              "p90_us": 180.73200772050768,
+              "min_us": 166.3169969106093,
+              "max_us": 205.2509953500703
+            },
+            "completion_wait": {
+              "median_us": 10.172996553592384,
+              "p90_us": 11.56599319074303,
+              "min_us": 9.502997272647917,
+              "max_us": 216.33500000461936
+            },
+            "synchronized_total": {
+              "median_us": 183.34299966227263,
+              "p90_us": 194.14399866946042,
+              "min_us": 177.66200471669436,
+              "max_us": 386.6280021611601
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 120,
+            "launches_per_invocation": 12.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 53.18399999999929,
+                "mean_device_time_us": 5.3183999999999285
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 33.246999999999844,
+                "mean_device_time_us": 0.8311749999999961
+              },
+              "other": {
+                "launch_count": 70,
+                "total_device_time_us": 698.9549999999995,
+                "mean_device_time_us": 9.985071428571421
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 7
+            },
+            "external_kernel_call_count": 7,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 11,
+            "buffer_reuse_count": 4,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_3, hidden, rms_norm_1",
+              "linear_4, silu, linear_5, gated",
+              "linear_3, hidden, linear_6, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear_1",
+              "linear_2",
+              "linear, view, query, linear_1, view_1, key, linear_2, view_2, value, attended",
+              "transpose_3, merged, linear_3",
+              "linear_3, hidden, rms_norm_1",
+              "linear_3, hidden, rms_norm_1, linear_4",
+              "linear_5",
+              "linear_4, silu, linear_5, gated",
+              "linear_4, silu, linear_5, gated, linear_6",
+              "linear_3, hidden, linear_6, add_1"
+            ]
+          }
+        },
+        "packed_components": {
+          "strategy": "packed_components",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.0009765625,
+            "mean_abs_error": 3.717343133757822e-05
+          },
+          "first_call_ms": 2535.670306009706,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 215.62199981417507,
+              "p90_us": 230.6280075572431,
+              "min_us": 203.90799909364432,
+              "max_us": 501.18799845222384
+            },
+            "completion_wait": {
+              "median_us": 11.200500011909753,
+              "p90_us": 13.70500831399113,
+              "min_us": 10.097995982505381,
+              "max_us": 149.5670003350824
+            },
+            "synchronized_total": {
+              "median_us": 227.33699734089896,
+              "p90_us": 245.26799097657204,
+              "min_us": 214.47699691634625,
+              "max_us": 519.3999968469143
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 100,
+            "launches_per_invocation": 10.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 20,
+                "total_device_time_us": 151.5179999999998,
+                "mean_device_time_us": 7.57589999999999
+              },
+              "generated_triton": {
+                "launch_count": 10,
+                "total_device_time_us": 7.485999999999876,
+                "mean_device_time_us": 0.7485999999999876
+              },
+              "other": {
+                "launch_count": 70,
+                "total_device_time_us": 397.88799999999424,
+                "mean_device_time_us": 5.6841142857142035
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 2,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 1,
+            "wrapper_launch_site_count": 5,
+            "buffer_reuse_count": 0,
+            "input_alignment_copy_count": 2,
+            "source_node_groups": [
+              "linear, chunk, silu, mul",
+              "linear",
+              "linear, chunk, silu, mul",
+              "linear, chunk, silu, mul, linear_1",
+              "linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1"
+            ]
+          }
+        },
+        "packed_default": {
+          "strategy": "packed_default",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.00016042590141296387
+          },
+          "first_call_ms": 2942.9781440121587,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 152.21349895000458,
+              "p90_us": 162.4529977561906,
+              "min_us": 144.34900367632508,
+              "max_us": 189.6539906738326
+            },
+            "completion_wait": {
+              "median_us": 9.868505003396422,
+              "p90_us": 11.230993550270796,
+              "min_us": 9.10699600353837,
+              "max_us": 145.65599849447608
+            },
+            "synchronized_total": {
+              "median_us": 162.28200547629967,
+              "p90_us": 174.3809989420697,
+              "min_us": 153.7040079711005,
+              "max_us": 303.3620014321059
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 90,
+            "launches_per_invocation": 9.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 20,
+                "total_device_time_us": 150.30299999999852,
+                "mean_device_time_us": 7.515149999999926
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 32.51200000000199,
+                "mean_device_time_us": 0.8128000000000497
+              },
+              "other": {
+                "launch_count": 30,
+                "total_device_time_us": 343.45799999999986,
+                "mean_device_time_us": 11.448599999999995
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_reduce_overhead": {
+          "strategy": "packed_reduce_overhead",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.00016042590141296387
+          },
+          "first_call_ms": 2954.2141379934037,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 76.32450433447957,
+              "p90_us": 84.57600779365748,
+              "min_us": 70.84800745360553,
+              "max_us": 196.38800586108118
+            },
+            "completion_wait": {
+              "median_us": 42.82350710127503,
+              "p90_us": 43.78899757284671,
+              "min_us": 30.431008781306446,
+              "max_us": 188.77700495067984
+            },
+            "synchronized_total": {
+              "median_us": 119.42499986616895,
+              "p90_us": 128.85300384368747,
+              "min_us": 114.39200898166746,
+              "max_us": 267.5139985512942
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 100,
+            "launches_per_invocation": 10.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 20,
+                "total_device_time_us": 154.529,
+                "mean_device_time_us": 7.72645
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 31.810000000001082,
+                "mean_device_time_us": 0.7952500000000271
+              },
+              "other": {
+                "launch_count": 40,
+                "total_device_time_us": 344.9300000000003,
+                "mean_device_time_us": 8.623250000000008
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_max_autotune_no_cudagraphs": {
+          "strategy": "packed_max_autotune_no_cudagraphs",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.0001999462692765519
+          },
+          "first_call_ms": 8983.875667996472,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 152.4245089967735,
+              "p90_us": 179.35899086296558,
+              "min_us": 141.31900388747454,
+              "max_us": 262.1989988256246
+            },
+            "completion_wait": {
+              "median_us": 9.845498425420374,
+              "p90_us": 13.120996300131083,
+              "min_us": 8.753006113693118,
+              "max_us": 134.02799959294498
+            },
+            "synchronized_total": {
+              "median_us": 163.0380065762438,
+              "p90_us": 195.18598855938762,
+              "min_us": 150.77499847393483,
+              "max_us": 310.7250086031854
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 100,
+            "launches_per_invocation": 10.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 55.84100000000035,
+                "mean_device_time_us": 5.584100000000035
+              },
+              "generated_triton": {
+                "launch_count": 90,
+                "total_device_time_us": 275.87300000000073,
+                "mean_device_time_us": 3.065255555555564
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {},
+            "external_kernel_call_count": 0,
+            "triton_kernel_launch_count": 9,
+            "wrapper_launch_site_count": 9,
+            "buffer_reuse_count": 2,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_max_autotune": {
+          "strategy": "packed_max_autotune",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.0001999462692765519
+          },
+          "first_call_ms": 9069.137212994974,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 80.62800043262541,
+              "p90_us": 96.48699779063463,
+              "min_us": 73.22500459849834,
+              "max_us": 136.6479991702363
+            },
+            "completion_wait": {
+              "median_us": 20.646002667490393,
+              "p90_us": 21.662010112777352,
+              "min_us": 12.988995877094567,
+              "max_us": 104.56600284669548
+            },
+            "synchronized_total": {
+              "median_us": 101.59050725633278,
+              "p90_us": 116.13999959081411,
+              "min_us": 94.5390056585893,
+              "max_us": 184.46799367666245
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 10,
+                "total_device_time_us": 55.233000000001084,
+                "mean_device_time_us": 5.523300000000108
+              },
+              "generated_triton": {
+                "launch_count": 90,
+                "total_device_time_us": 267.25500000000056,
+                "mean_device_time_us": 2.9695000000000062
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 9.056000000000495,
+                "mean_device_time_us": 0.9056000000000495
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {},
+            "external_kernel_call_count": 0,
+            "triton_kernel_launch_count": 9,
+            "wrapper_launch_site_count": 9,
+            "buffer_reuse_count": 2,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_1, hidden, linear_2, chunk_1, silu, mul, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_shape_padding": {
+          "strategy": "packed_shape_padding",
+          "shape": [
+            1,
+            1,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.00016042590141296387
+          },
+          "first_call_ms": 2936.6525919904234,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 155.18799773417413,
+              "p90_us": 165.8389955991879,
+              "min_us": 147.64899970032275,
+              "max_us": 272.23701181355864
+            },
+            "completion_wait": {
+              "median_us": 10.278992704115808,
+              "p90_us": 11.320997145958245,
+              "min_us": 9.318013326264918,
+              "max_us": 146.45500050392002
+            },
+            "synchronized_total": {
+              "median_us": 165.65449186600745,
+              "p90_us": 178.01500507630408,
+              "min_us": 157.77800581417978,
+              "max_us": 320.56300551630557
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 90,
+            "launches_per_invocation": 9.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 20,
+                "total_device_time_us": 151.361000000001,
+                "mean_device_time_us": 7.568050000000051
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 33.02499999999873,
+                "mean_device_time_us": 0.8256249999999682
+              },
+              "other": {
+                "launch_count": 30,
+                "total_device_time_us": 343.6810000000021,
+                "mean_device_time_us": 11.456033333333403
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "shape": [
+        1,
+        128,
+        768
+      ],
+      "strategies": {
+        "original_eager": {
+          "strategy": "original_eager",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.0,
+            "mean_abs_error": 0.0
+          },
+          "first_call_ms": null,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 131.0954976361245,
+              "p90_us": 140.23699623066932,
+              "min_us": 126.97999773081392,
+              "max_us": 186.52899598237127
+            },
+            "completion_wait": {
+              "median_us": 35.28399975039065,
+              "p90_us": 41.157996747642756,
+              "min_us": 19.305007299408317,
+              "max_us": 191.20299839414656
+            },
+            "synchronized_total": {
+              "median_us": 169.8280029813759,
+              "p90_us": 179.30500325746834,
+              "min_us": 161.64999397005886,
+              "max_us": 322.5739928893745
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 150,
+            "launches_per_invocation": 15.0,
+            "categories": {
+              "eager_multiply": {
+                "launch_count": 10,
+                "total_device_time_us": 15.58599999999933,
+                "mean_device_time_us": 1.5585999999999332
+              },
+              "eager_silu": {
+                "launch_count": 10,
+                "total_device_time_us": 21.792000000000826,
+                "mean_device_time_us": 2.1792000000000824
+              },
+              "external_gemm": {
+                "launch_count": 80,
+                "total_device_time_us": 1097.4199999999994,
+                "mean_device_time_us": 13.717749999999992
+              },
+              "other": {
+                "launch_count": 50,
+                "total_device_time_us": 66.5930000000003,
+                "mean_device_time_us": 1.331860000000006
+              }
+            }
+          },
+          "inductor_wrapper": null
+        },
+        "packed_eager": {
+          "strategy": "packed_eager",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.0,
+            "mean_abs_error": 0.0
+          },
+          "first_call_ms": null,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 110.20999954780564,
+              "p90_us": 124.50299982447177,
+              "min_us": 106.30200267769396,
+              "max_us": 163.59100118279457
+            },
+            "completion_wait": {
+              "median_us": 38.96399721270427,
+              "p90_us": 47.4539992865175,
+              "min_us": 16.6529935086146,
+              "max_us": 207.28800154756755
+            },
+            "synchronized_total": {
+              "median_us": 154.54949607374147,
+              "p90_us": 169.546008692123,
+              "min_us": 144.40101222135127,
+              "max_us": 313.9019972877577
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 120,
+            "launches_per_invocation": 12.0,
+            "categories": {
+              "eager_multiply": {
+                "launch_count": 10,
+                "total_device_time_us": 37.98500000000149,
+                "mean_device_time_us": 3.798500000000149
+              },
+              "eager_silu": {
+                "launch_count": 10,
+                "total_device_time_us": 44.511999999999716,
+                "mean_device_time_us": 4.451199999999972
+              },
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 922.8239999999994,
+                "mean_device_time_us": 18.45647999999999
+              },
+              "other": {
+                "launch_count": 50,
+                "total_device_time_us": 63.87399999999798,
+                "mean_device_time_us": 1.2774799999999595
+              }
+            }
+          },
+          "inductor_wrapper": null
+        },
+        "original_default": {
+          "strategy": "original_default",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.0001652132923481986
+          },
+          "first_call_ms": 3014.125294997939,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 191.83400581823662,
+              "p90_us": 212.19899645075202,
+              "min_us": 182.11000133305788,
+              "max_us": 279.86399072688073
+            },
+            "completion_wait": {
+              "median_us": 25.13550134608522,
+              "p90_us": 28.691007173620164,
+              "min_us": 10.73100429493934,
+              "max_us": 222.3539922852069
+            },
+            "synchronized_total": {
+              "median_us": 216.99750504922122,
+              "p90_us": 242.25299421232194,
+              "min_us": 207.83299987670034,
+              "max_us": 414.5019920542836
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 130,
+            "launches_per_invocation": 13.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 80,
+                "total_device_time_us": 1130.5730000000015,
+                "mean_device_time_us": 14.132162500000018
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 65.4710000000016,
+                "mean_device_time_us": 1.6367750000000398
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 3.550999999999476,
+                "mean_device_time_us": 0.3550999999999476
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 7
+            },
+            "external_kernel_call_count": 7,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 11,
+            "buffer_reuse_count": 4,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_3, hidden, rms_norm_1",
+              "linear_4, silu, linear_5, gated",
+              "linear_3, hidden, linear_6, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear_1",
+              "linear_2",
+              "linear, view, query, linear_1, view_1, key, linear_2, view_2, value, attended",
+              "transpose_3, merged, linear_3",
+              "linear_3, hidden, rms_norm_1",
+              "linear_3, hidden, rms_norm_1, linear_4",
+              "linear_5",
+              "linear_4, silu, linear_5, gated",
+              "linear_4, silu, linear_5, gated, linear_6",
+              "linear_3, hidden, linear_6, add_1"
+            ]
+          }
+        },
+        "packed_components": {
+          "strategy": "packed_components",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 3.445377660682425e-05
+          },
+          "first_call_ms": 2551.860662002582,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 244.54899539705366,
+              "p90_us": 268.67398992180824,
+              "min_us": 230.29200383462012,
+              "max_us": 369.06800232827663
+            },
+            "completion_wait": {
+              "median_us": 18.205995729658753,
+              "p90_us": 21.069994545541704,
+              "min_us": 12.061995221301913,
+              "max_us": 166.82001296430826
+            },
+            "synchronized_total": {
+              "median_us": 262.4234912218526,
+              "p90_us": 291.80399724282324,
+              "min_us": 248.9909966243431,
+              "max_us": 413.42600889038295
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 927.2700000000045,
+                "mean_device_time_us": 18.54540000000009
+              },
+              "generated_triton": {
+                "launch_count": 10,
+                "total_device_time_us": 19.80900000000156,
+                "mean_device_time_us": 1.980900000000156
+              },
+              "other": {
+                "launch_count": 50,
+                "total_device_time_us": 65.31399999999621,
+                "mean_device_time_us": 1.3062799999999242
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 2,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 1,
+            "wrapper_launch_site_count": 5,
+            "buffer_reuse_count": 0,
+            "input_alignment_copy_count": 2,
+            "source_node_groups": [
+              "linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear, chunk, silu, mul",
+              "linear",
+              "linear, chunk, silu, mul",
+              "linear, chunk, silu, mul, linear_1"
+            ]
+          }
+        },
+        "packed_default": {
+          "strategy": "packed_default",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.0001652132923481986
+          },
+          "first_call_ms": 2993.1822210055543,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 156.9700034451671,
+              "p90_us": 163.68400247301906,
+              "min_us": 150.12799121905118,
+              "max_us": 180.8239903766662
+            },
+            "completion_wait": {
+              "median_us": 27.979993319604546,
+              "p90_us": 31.24598879367113,
+              "min_us": 14.802993973717093,
+              "max_us": 174.22500241082162
+            },
+            "synchronized_total": {
+              "median_us": 185.86350051918998,
+              "p90_us": 193.93399998079985,
+              "min_us": 177.541995071806,
+              "max_us": 333.3000058773905
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 100,
+            "launches_per_invocation": 10.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 984.3590000000008,
+                "mean_device_time_us": 19.687180000000016
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 68.5799999999997,
+                "mean_device_time_us": 1.7144999999999926
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 3.358999999999469,
+                "mean_device_time_us": 0.3358999999999469
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_reduce_overhead": {
+          "strategy": "packed_reduce_overhead",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.0001652132923481986
+          },
+          "first_call_ms": 3001.1287840025034,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 76.52550266357139,
+              "p90_us": 81.46400796249509,
+              "min_us": 72.70000060088933,
+              "max_us": 114.14699838496745
+            },
+            "completion_wait": {
+              "median_us": 97.63098933035508,
+              "p90_us": 103.54600090067834,
+              "min_us": 89.56399688031524,
+              "max_us": 280.25700885336846
+            },
+            "synchronized_total": {
+              "median_us": 175.95000099390745,
+              "p90_us": 182.73400200996548,
+              "min_us": 167.88000357337296,
+              "max_us": 357.5440059648827
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 971.9739999999995,
+                "mean_device_time_us": 19.43947999999999
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 66.55899999999701,
+                "mean_device_time_us": 1.6639749999999254
+              },
+              "other": {
+                "launch_count": 20,
+                "total_device_time_us": 78.40200000000027,
+                "mean_device_time_us": 3.9201000000000135
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_max_autotune_no_cudagraphs": {
+          "strategy": "packed_max_autotune_no_cudagraphs",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.0001652867504162714
+          },
+          "first_call_ms": 5479.897325989441,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 171.59850540338084,
+              "p90_us": 194.46099759079516,
+              "min_us": 158.04299619048834,
+              "max_us": 248.71800269465894
+            },
+            "completion_wait": {
+              "median_us": 26.36299905134365,
+              "p90_us": 30.130991945043206,
+              "min_us": 11.76699879579246,
+              "max_us": 174.1339947329834
+            },
+            "synchronized_total": {
+              "median_us": 198.6505085369572,
+              "p90_us": 225.31399736180902,
+              "min_us": 186.31000421009958,
+              "max_us": 343.31600181758404
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 100,
+            "launches_per_invocation": 10.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 972.2969999999991,
+                "mean_device_time_us": 19.445939999999982
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 63.105999999999995,
+                "mean_device_time_us": 1.5776499999999998
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 3.103999999998905,
+                "mean_device_time_us": 0.3103999999998905
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_max_autotune": {
+          "strategy": "packed_max_autotune",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.0001652064674999565
+          },
+          "first_call_ms": 5116.189580003265,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 79.05549864517525,
+              "p90_us": 92.24499808624387,
+              "min_us": 74.02100891340524,
+              "max_us": 118.47699352074414
+            },
+            "completion_wait": {
+              "median_us": 97.63749403646216,
+              "p90_us": 104.20000762678683,
+              "min_us": 87.95000030659139,
+              "max_us": 234.1470099054277
+            },
+            "synchronized_total": {
+              "median_us": 178.84050612337887,
+              "p90_us": 197.52098887693137,
+              "min_us": 169.70399883575737,
+              "max_us": 312.0440087513998
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 981.3910000000012,
+                "mean_device_time_us": 19.627820000000025
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 64.28799999999887,
+                "mean_device_time_us": 1.6071999999999718
+              },
+              "other": {
+                "launch_count": 20,
+                "total_device_time_us": 91.29500000000121,
+                "mean_device_time_us": 4.5647500000000605
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_shape_padding": {
+          "strategy": "packed_shape_padding",
+          "shape": [
+            1,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 0.0001652132923481986
+          },
+          "first_call_ms": 2969.8973710037535,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 160.4470089660026,
+              "p90_us": 168.02700702100992,
+              "min_us": 154.8529980937019,
+              "max_us": 187.1290005510673
+            },
+            "completion_wait": {
+              "median_us": 27.875503292307258,
+              "p90_us": 30.87701043114066,
+              "min_us": 11.481999536044896,
+              "max_us": 199.48199042119086
+            },
+            "synchronized_total": {
+              "median_us": 188.83000302594155,
+              "p90_us": 198.47200019285083,
+              "min_us": 181.26801296602935,
+              "max_us": 359.14099134970456
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 100,
+            "launches_per_invocation": 10.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 970.0249999999974,
+                "mean_device_time_us": 19.400499999999948
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 65.72799999999847,
+                "mean_device_time_us": 1.6431999999999618
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 3.16899999999805,
+                "mean_device_time_us": 0.316899999999805
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "shape": [
+        4,
+        128,
+        768
+      ],
+      "strategies": {
+        "original_eager": {
+          "strategy": "original_eager",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.0,
+            "mean_abs_error": 0.0
+          },
+          "first_call_ms": null,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 141.2150013493374,
+              "p90_us": 162.8379977773875,
+              "min_us": 132.0349983870983,
+              "max_us": 262.23099848721176
+            },
+            "completion_wait": {
+              "median_us": 326.5234990976751,
+              "p90_us": 335.6019878992811,
+              "min_us": 172.0730069791898,
+              "max_us": 554.5000021811575
+            },
+            "synchronized_total": {
+              "median_us": 469.521495688241,
+              "p90_us": 483.97399950772524,
+              "min_us": 351.5379939926788,
+              "max_us": 687.5800027046353
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 140,
+            "launches_per_invocation": 14.0,
+            "categories": {
+              "eager_multiply": {
+                "launch_count": 10,
+                "total_device_time_us": 57.79300000000012,
+                "mean_device_time_us": 5.779300000000012
+              },
+              "eager_silu": {
+                "launch_count": 10,
+                "total_device_time_us": 56.32099999999946,
+                "mean_device_time_us": 5.632099999999946
+              },
+              "external_gemm": {
+                "launch_count": 80,
+                "total_device_time_us": 3056.7649999999994,
+                "mean_device_time_us": 38.2095625
+              },
+              "other": {
+                "launch_count": 40,
+                "total_device_time_us": 158.6560000000004,
+                "mean_device_time_us": 3.96640000000001
+              }
+            }
+          },
+          "inductor_wrapper": null
+        },
+        "packed_eager": {
+          "strategy": "packed_eager",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.0,
+            "mean_abs_error": 0.0
+          },
+          "first_call_ms": null,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 116.72300024656579,
+              "p90_us": 135.67200221586972,
+              "min_us": 108.16600115504116,
+              "max_us": 305.722001940012
+            },
+            "completion_wait": {
+              "median_us": 358.2145072869025,
+              "p90_us": 365.04000308923423,
+              "min_us": 173.5400001052767,
+              "max_us": 571.4010039810091
+            },
+            "synchronized_total": {
+              "median_us": 476.0035008075647,
+              "p90_us": 491.4090095553547,
+              "min_us": 371.7920044437051,
+              "max_us": 715.5550119932741
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 110,
+            "launches_per_invocation": 11.0,
+            "categories": {
+              "eager_multiply": {
+                "launch_count": 10,
+                "total_device_time_us": 121.89000000000078,
+                "mean_device_time_us": 12.189000000000078
+              },
+              "eager_silu": {
+                "launch_count": 10,
+                "total_device_time_us": 138.6560000000004,
+                "mean_device_time_us": 13.86560000000004
+              },
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 3449.2569999999987,
+                "mean_device_time_us": 68.98513999999997
+              },
+              "other": {
+                "launch_count": 40,
+                "total_device_time_us": 156.96099999999683,
+                "mean_device_time_us": 3.924024999999921
+              }
+            }
+          },
+          "inductor_wrapper": null
+        },
+        "original_default": {
+          "strategy": "original_default",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.00390625,
+            "mean_abs_error": 0.00016257568495348096
+          },
+          "first_call_ms": 2999.8878019978292,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 184.1830016928725,
+              "p90_us": 191.48600404150784,
+              "min_us": 173.37100871372968,
+              "max_us": 277.7079935185611
+            },
+            "completion_wait": {
+              "median_us": 298.7195039168,
+              "p90_us": 306.71201238874346,
+              "min_us": 174.99100067652762,
+              "max_us": 503.889998071827
+            },
+            "synchronized_total": {
+              "median_us": 484.14949560537934,
+              "p90_us": 494.1469960613176,
+              "min_us": 392.37499004229903,
+              "max_us": 685.5609972262755
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 120,
+            "launches_per_invocation": 12.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 80,
+                "total_device_time_us": 3882.911,
+                "mean_device_time_us": 48.536387500000004
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 193.24900000000184,
+                "mean_device_time_us": 4.831225000000046
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 7
+            },
+            "external_kernel_call_count": 7,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 11,
+            "buffer_reuse_count": 4,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_3, hidden, rms_norm_1",
+              "linear_4, silu, linear_5, gated",
+              "linear_3, hidden, linear_6, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear_1",
+              "linear_2",
+              "linear, view, query, linear_1, view_1, key, linear_2, view_2, value, attended",
+              "transpose_3, merged, linear_3",
+              "linear_3, hidden, rms_norm_1",
+              "linear_3, hidden, rms_norm_1, linear_4",
+              "linear_5",
+              "linear_4, silu, linear_5, gated",
+              "linear_4, silu, linear_5, gated, linear_6",
+              "linear_3, hidden, linear_6, add_1"
+            ]
+          }
+        },
+        "packed_components": {
+          "strategy": "packed_components",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.001953125,
+            "mean_abs_error": 2.874886558856815e-05
+          },
+          "first_call_ms": 2529.5308969944017,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 220.37050075596198,
+              "p90_us": 258.61999893095344,
+              "min_us": 206.41600713133812,
+              "max_us": 495.4699979862198
+            },
+            "completion_wait": {
+              "median_us": 253.45049652969465,
+              "p90_us": 266.48999482858926,
+              "min_us": 123.51199984550476,
+              "max_us": 462.79300295282155
+            },
+            "synchronized_total": {
+              "median_us": 475.2604945679195,
+              "p90_us": 511.5370004205033,
+              "min_us": 379.4430085690692,
+              "max_us": 674.9000021954998
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 100,
+            "launches_per_invocation": 10.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 3898.5290000000023,
+                "mean_device_time_us": 77.97058000000004
+              },
+              "generated_triton": {
+                "launch_count": 10,
+                "total_device_time_us": 71.17100000000164,
+                "mean_device_time_us": 7.117100000000164
+              },
+              "other": {
+                "launch_count": 40,
+                "total_device_time_us": 173.18600000000424,
+                "mean_device_time_us": 4.329650000000106
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 2,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 1,
+            "wrapper_launch_site_count": 5,
+            "buffer_reuse_count": 0,
+            "input_alignment_copy_count": 2,
+            "source_node_groups": [
+              "linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear, chunk, silu, mul",
+              "linear",
+              "linear, chunk, silu, mul",
+              "linear, chunk, silu, mul, linear_1"
+            ]
+          }
+        },
+        "packed_default": {
+          "strategy": "packed_default",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.00390625,
+            "mean_abs_error": 0.00016257568495348096
+          },
+          "first_call_ms": 3017.6600650011096,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 163.80850138375536,
+              "p90_us": 179.1219983715564,
+              "min_us": 156.0240052640438,
+              "max_us": 221.14299645181745
+            },
+            "completion_wait": {
+              "median_us": 310.8550008619204,
+              "p90_us": 318.8889968441799,
+              "min_us": 199.06800298485905,
+              "max_us": 557.3730013566092
+            },
+            "synchronized_total": {
+              "median_us": 475.6099951919168,
+              "p90_us": 485.98799912724644,
+              "min_us": 383.6959949694574,
+              "max_us": 715.2559992391616
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 90,
+            "launches_per_invocation": 9.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 3871.7800000000016,
+                "mean_device_time_us": 77.43560000000004
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 201.15900000000056,
+                "mean_device_time_us": 5.028975000000014
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_reduce_overhead": {
+          "strategy": "packed_reduce_overhead",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.00390625,
+            "mean_abs_error": 0.00016257568495348096
+          },
+          "first_call_ms": 3043.3707180054625,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 79.64099495438859,
+              "p90_us": 88.54200132191181,
+              "min_us": 73.61700409092009,
+              "max_us": 203.52800493128598
+            },
+            "completion_wait": {
+              "median_us": 400.32250399235636,
+              "p90_us": 407.05200808588415,
+              "min_us": 296.38499836437404,
+              "max_us": 528.9859982440248
+            },
+            "synchronized_total": {
+              "median_us": 480.2890034625307,
+              "p90_us": 492.78000369668007,
+              "min_us": 388.1070006173104,
+              "max_us": 615.7419993542135
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 100,
+            "launches_per_invocation": 10.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 3851.7370000000005,
+                "mean_device_time_us": 77.03474000000001
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 198.81700000000046,
+                "mean_device_time_us": 4.970425000000011
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 80.51399999999967,
+                "mean_device_time_us": 8.051399999999967
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_max_autotune_no_cudagraphs": {
+          "strategy": "packed_max_autotune_no_cudagraphs",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.00390625,
+            "mean_abs_error": 0.00016250998305622488
+          },
+          "first_call_ms": 5100.436517008347,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 185.05599291529506,
+              "p90_us": 243.48600709345192,
+              "min_us": 160.522002261132,
+              "max_us": 463.51901255548
+            },
+            "completion_wait": {
+              "median_us": 300.8735002367757,
+              "p90_us": 313.2290003122762,
+              "min_us": 107.95400885399431,
+              "max_us": 438.01199353765696
+            },
+            "synchronized_total": {
+              "median_us": 484.74549112142995,
+              "p90_us": 536.5640099626034,
+              "min_us": 384.2940059257671,
+              "max_us": 652.9470119858161
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 90,
+            "launches_per_invocation": 9.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 3680.1289999999963,
+                "mean_device_time_us": 73.60257999999993
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 160.0639999999985,
+                "mean_device_time_us": 4.0015999999999625
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_max_autotune": {
+          "strategy": "packed_max_autotune",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.00390625,
+            "mean_abs_error": 0.00016250998305622488
+          },
+          "first_call_ms": 5670.690009996179,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 85.36400855518878,
+              "p90_us": 109.77601050399244,
+              "min_us": 75.85700950585306,
+              "max_us": 228.01500745117664
+            },
+            "completion_wait": {
+              "median_us": 396.91249548923224,
+              "p90_us": 407.6910117873922,
+              "min_us": 340.83600621670485,
+              "max_us": 593.1389896431938
+            },
+            "synchronized_total": {
+              "median_us": 483.26700198231265,
+              "p90_us": 527.2109992802143,
+              "min_us": 430.00999721698463,
+              "max_us": 718.2039989857003
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 100,
+            "launches_per_invocation": 10.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 3617.307999999999,
+                "mean_device_time_us": 72.34615999999998
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 156.25799999999913,
+                "mean_device_time_us": 3.906449999999978
+              },
+              "other": {
+                "launch_count": 10,
+                "total_device_time_us": 82.4650000000006,
+                "mean_device_time_us": 8.24650000000006
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        },
+        "packed_shape_padding": {
+          "strategy": "packed_shape_padding",
+          "shape": [
+            4,
+            128,
+            768
+          ],
+          "parameter_count": 7079424,
+          "correctness": {
+            "allclose": true,
+            "max_abs_error": 0.00390625,
+            "mean_abs_error": 0.00016257568495348096
+          },
+          "first_call_ms": 3077.6858409954,
+          "runtime_breakdown": {
+            "host_enqueue": {
+              "median_us": 159.8704984644428,
+              "p90_us": 171.7550039757043,
+              "min_us": 153.04300177376717,
+              "max_us": 260.8459908515215
+            },
+            "completion_wait": {
+              "median_us": 319.27599775372073,
+              "p90_us": 323.90799606218934,
+              "min_us": 190.60001068282872,
+              "max_us": 517.8599967621267
+            },
+            "synchronized_total": {
+              "median_us": 478.88149856589735,
+              "p90_us": 489.33899961411953,
+              "min_us": 382.51400110311806,
+              "max_us": 672.235997626558
+            }
+          },
+          "kernel_profile": {
+            "profiled_invocations": 10,
+            "launch_count": 90,
+            "launches_per_invocation": 9.0,
+            "categories": {
+              "external_gemm": {
+                "launch_count": 50,
+                "total_device_time_us": 4124.223000000002,
+                "mean_device_time_us": 82.48446000000004
+              },
+              "generated_triton": {
+                "launch_count": 40,
+                "total_device_time_us": 200.64000000000078,
+                "mean_device_time_us": 5.0160000000000196
+              }
+            }
+          },
+          "inductor_wrapper": {
+            "wrapper_count": 1,
+            "external_kernel_calls": {
+              "mm": 4
+            },
+            "external_kernel_call_count": 4,
+            "triton_kernel_launch_count": 4,
+            "wrapper_launch_site_count": 8,
+            "buffer_reuse_count": 3,
+            "input_alignment_copy_count": 1,
+            "source_node_groups": [
+              "rms_norm",
+              "linear_1, hidden, rms_norm_1",
+              "linear_2, chunk_1, silu, mul",
+              "linear_1, hidden, linear_3, add_1",
+              "rms_norm",
+              "rms_norm, linear",
+              "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+              "transpose_3, merged, linear_1",
+              "linear_1, hidden, rms_norm_1",
+              "linear_1, hidden, rms_norm_1, linear_2",
+              "linear_2, chunk_1, silu, mul",
+              "linear_2, chunk_1, silu, mul, linear_3",
+              "linear_1, hidden, linear_3, add_1"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "rmsnorm_fusion": {
+    "native": {
+      "strategy": "rmsnorm_native",
+      "shape": [
+        4,
+        128,
+        768
+      ],
+      "correctness": {
+        "allclose": true,
+        "max_abs_error": 0.00390625,
+        "mean_abs_error": 0.0001707197807263583
+      },
+      "first_call_ms": 2348.7048120005056,
+      "runtime_breakdown": {
+        "host_enqueue": {
+          "median_us": 49.62550156051293,
+          "p90_us": 52.20099410507828,
+          "min_us": 46.76000389736146,
+          "max_us": 66.65200635325164
+        },
+        "completion_wait": {
+          "median_us": 7.762500899843872,
+          "p90_us": 8.310002158395946,
+          "min_us": 6.707006832584739,
+          "max_us": 102.81600407324731
+        },
+        "synchronized_total": {
+          "median_us": 57.4489968130365,
+          "p90_us": 61.71500717755407,
+          "min_us": 54.20000525191426,
+          "max_us": 152.0770019851625
+        }
+      },
+      "kernel_profile": {
+        "profiled_invocations": 10,
+        "launch_count": 10,
+        "launches_per_invocation": 1.0,
+        "categories": {
+          "generated_triton": {
+            "launch_count": 10,
+            "total_device_time_us": 38.94600000000105,
+            "mean_device_time_us": 3.894600000000105
+          }
+        }
+      },
+      "inductor_wrapper": {
+        "wrapper_count": 1,
+        "external_kernel_calls": {},
+        "external_kernel_call_count": 0,
+        "triton_kernel_launch_count": 1,
+        "wrapper_launch_site_count": 1,
+        "buffer_reuse_count": 0,
+        "input_alignment_copy_count": 2,
+        "source_node_groups": [
+          "rms_norm, add",
+          "rms_norm, add"
+        ]
+      }
+    },
+    "decomposed": {
+      "strategy": "rmsnorm_decomposed",
+      "shape": [
+        4,
+        128,
+        768
+      ],
+      "correctness": {
+        "allclose": true,
+        "max_abs_error": 0.00390625,
+        "mean_abs_error": 0.0001707197807263583
+      },
+      "first_call_ms": 2210.297940997407,
+      "runtime_breakdown": {
+        "host_enqueue": {
+          "median_us": 46.97099939221516,
+          "p90_us": 49.92600588593632,
+          "min_us": 44.3640019511804,
+          "max_us": 72.3349949112162
+        },
+        "completion_wait": {
+          "median_us": 7.013499271124601,
+          "p90_us": 7.8500015661120415,
+          "min_us": 5.595997208729386,
+          "max_us": 128.97899432573467
+        },
+        "synchronized_total": {
+          "median_us": 54.04449620982632,
+          "p90_us": 58.91099863220006,
+          "min_us": 51.01299029774964,
+          "max_us": 185.86798978503793
+        }
+      },
+      "kernel_profile": {
+        "profiled_invocations": 10,
+        "launch_count": 10,
+        "launches_per_invocation": 1.0,
+        "categories": {
+          "generated_triton": {
+            "launch_count": 10,
+            "total_device_time_us": 38.94399999999973,
+            "mean_device_time_us": 3.8943999999999734
+          }
+        }
+      },
+      "inductor_wrapper": {
+        "wrapper_count": 1,
+        "external_kernel_calls": {},
+        "external_kernel_call_count": 0,
+        "triton_kernel_launch_count": 1,
+        "wrapper_launch_site_count": 1,
+        "buffer_reuse_count": 0,
+        "input_alignment_copy_count": 2,
+        "source_node_groups": [
+          "float_1, square, variance, add, rsqrt, to, normalized, mul_1, add_1",
+          "float_1, square, variance, add, rsqrt, to, normalized, mul_1, add_1"
+        ]
+      }
+    },
+    "block_source_groups": [
+      "rms_norm",
+      "linear_1, hidden, rms_norm_1",
+      "linear_2, chunk_1, silu, mul",
+      "linear_1, hidden, linear_3, add_1",
+      "rms_norm",
+      "rms_norm, linear",
+      "linear, chunk, view, transpose, view_1, transpose_1, view_2, transpose_2, attended",
+      "transpose_3, merged, linear_1",
+      "linear_1, hidden, rms_norm_1",
+      "linear_1, hidden, rms_norm_1, linear_2",
+      "linear_2, chunk_1, silu, mul",
+      "linear_2, chunk_1, silu, mul, linear_3",
+      "linear_1, hidden, linear_3, add_1"
+    ],
+    "residual_into_second_rmsnorm": true,
+    "final_residual_pointwise": true
+  }
+}
