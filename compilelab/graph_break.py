@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import torch
 from torch import nn
@@ -64,7 +65,7 @@ def fullgraph_failure(model: nn.Module, example: torch.Tensor) -> dict[str, str]
     try:
         compiled = torch.compile(model, backend="eager", fullgraph=True)
         compiled(example)
-    except Exception as exc:
+    except torch._dynamo.exc.Unsupported as exc:
         first_line = str(exc).strip().splitlines()[0]
         return {"exception_type": type(exc).__name__, "reason": first_line}
     raise AssertionError("the Python data-dependent branch unexpectedly compiled")
@@ -122,6 +123,32 @@ def run(device: torch.device, output_dir: Path) -> dict[str, Any]:
         fixed_graphs, fixed_outputs = capture_regions(
             fixed_model, inputs, fullgraph=True
         )
+        compiled_fixed = torch.compile(fixed_model, fullgraph=True)
+        validation_inputs = {
+            "positive": positive,
+            "negative": negative,
+            "zero_predicate": torch.zeros(16, device=device),
+            "mixed_zero_sum": torch.tensor([1.0, -1.0] * 8, device=device),
+            "odd_length": torch.linspace(-1, 2, 17, device=device),
+            "noncontiguous": torch.ones(32, device=device)[::2],
+        }
+        validation = []
+        for name, value in validation_inputs.items():
+            actual = compiled_fixed(value)
+            reference = original_model(value)
+            torch.testing.assert_close(actual, reference, atol=1e-5, rtol=1e-5)
+            validation.append(
+                {
+                    "case": name,
+                    "shape": list(value.shape),
+                    "contiguous": value.is_contiguous(),
+                    "passed": True,
+                    "atol": 1e-5,
+                    "rtol": 1e-5,
+                }
+            )
+        explain_output = str(torch._dynamo.explain(original_model)(positive))
+        explain_fixed = str(torch._dynamo.explain(fixed_model)(positive))
 
     original_correct = [
         torch.allclose(reference, actual)
@@ -140,12 +167,11 @@ def run(device: torch.device, output_dir: Path) -> dict[str, Any]:
             "torch": torch.__version__,
             "device": str(device),
             "device_name": (
-                torch.cuda.get_device_name(device)
-                if device.type == "cuda"
-                else "CPU"
+                torch.cuda.get_device_name(device) if device.type == "cuda" else "CPU"
             ),
         },
         "case": "data_dependent_python_branch",
+        "inductor_validation": validation,
         "original": {
             "implementation": "PythonDataDependentBranch",
             "positive_correct": original_correct[0],
@@ -166,14 +192,18 @@ def run(device: torch.device, output_dir: Path) -> dict[str, Any]:
     (output_dir / "results.json").write_text(
         json.dumps(result, indent=2) + "\n", encoding="utf-8"
     )
-    (output_dir / "summary.md").write_text(
-        render_summary(result), encoding="utf-8"
-    )
+    (output_dir / "summary.md").write_text(render_summary(result), encoding="utf-8")
     (output_dir / "python_if_graphs.py").write_text(
         joined_graphs(original_graphs), encoding="utf-8"
     )
     (output_dir / "torch_cond_graph.py").write_text(
         joined_graphs(fixed_graphs), encoding="utf-8"
+    )
+    (output_dir / "python_if_explain.txt").write_text(
+        explain_output + "\n", encoding="utf-8"
+    )
+    (output_dir / "torch_cond_explain.txt").write_text(
+        explain_fixed + "\n", encoding="utf-8"
     )
     return result
 
@@ -182,9 +212,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Compare a data-dependent Python branch with torch.cond"
     )
-    parser.add_argument(
-        "--device", choices=("auto", "cpu", "cuda"), default="auto"
-    )
+    parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument(
         "--output-dir",
         type=Path,

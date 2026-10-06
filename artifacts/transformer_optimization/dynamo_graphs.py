@@ -1,4 +1,4 @@
-# ---- original transformer block ----
+# ---- unpacked transformer block ----
 def forward(self, L_self_modules_attention_norm_parameters_weight_ : torch.nn.parameter.Parameter, L_x_ : torch.Tensor, L_self_modules_attention_modules_q_proj_parameters_weight_ : torch.nn.parameter.Parameter, L_self_modules_attention_modules_k_proj_parameters_weight_ : torch.nn.parameter.Parameter, L_self_modules_attention_modules_v_proj_parameters_weight_ : torch.nn.parameter.Parameter, L_self_modules_attention_modules_out_proj_parameters_weight_ : torch.nn.parameter.Parameter, L_self_modules_mlp_norm_parameters_weight_ : torch.nn.parameter.Parameter, L_self_modules_mlp_modules_gate_proj_parameters_weight_ : torch.nn.parameter.Parameter, L_self_modules_mlp_modules_up_proj_parameters_weight_ : torch.nn.parameter.Parameter, L_self_modules_mlp_modules_down_proj_parameters_weight_ : torch.nn.parameter.Parameter):
     l_self_modules_attention_norm_parameters_weight_ = L_self_modules_attention_norm_parameters_weight_
     l_x_ = L_x_

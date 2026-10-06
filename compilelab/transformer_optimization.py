@@ -8,10 +8,11 @@ import sys
 import tempfile
 import time
 from collections import Counter
+from collections.abc import Callable
 from datetime import UTC, datetime
 from functools import partial
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import torch
 
@@ -28,7 +29,6 @@ from compilelab.transformer import (
     TransformerBlock,
 )
 from compilelab.workload import make_mlp_input
-
 
 TRANSFORMER_STRATEGIES = (
     "original_eager",
@@ -448,7 +448,7 @@ def capture_block_graphs(args: argparse.Namespace) -> str:
     if original_count != 1 or packed_count != 1:
         raise RuntimeError("expected one Dynamo graph for each transformer block")
     return (
-        "# ---- original transformer block ----\n"
+        "# ---- unpacked transformer block ----\n"
         f"{original_graphs[0].strip()}\n\n"
         "# ---- packed transformer block ----\n"
         f"{packed_graphs[0].strip()}\n"
@@ -513,7 +513,7 @@ def render_summary(result: dict[str, Any]) -> str:
     native_fusion = fusion["native"]["inductor_wrapper"]
     decomposed_fusion = fusion["decomposed"]["inductor_wrapper"]
     block_header = (
-        "| Shape | Original eager | Original compiled | Packed compiled | "
+        "| Shape | Unpacked eager | Unpacked compiled | Packed compiled | "
         "Best packed mode | Best latency |"
     )
     mode_shape_columns = " | ".join(
@@ -578,7 +578,7 @@ effectively tied at the largest shape ({whole_speedups[2]:.3f}×).
 
 ## Generated execution
 
-| Representative structural metric | Original | Packed |
+| Representative structural metric | Unpacked | Packed |
 |---|---:|---:|
 {structural_rows}
 
@@ -595,7 +595,7 @@ kernel.
 
 Both forms lowered to one generated launch, so manually decomposing RMSNorm did
 not remove another kernel. All strategies passed numerical comparison with
-original eager execution. Results are specific to the recorded software,
+unpacked eager execution. Results are specific to the recorded software,
 shapes, and RTX 5050 Laptop GPU.
 """
 
@@ -706,7 +706,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
     (args.output_dir / "dynamo_graphs.py").write_text(graph_artifact, encoding="utf-8")
     source_files = {
-        "original_default": "original_inductor.py",
+        "original_default": "unpacked_inductor.py",
         "packed_default": "packed_inductor.py",
         "rmsnorm_native": "rmsnorm_native_inductor.py",
         "rmsnorm_decomposed": "rmsnorm_decomposed_inductor.py",

@@ -7,14 +7,14 @@ import platform
 import re
 import subprocess
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import torch
 
 from compilelab.workload import GatedMLP
-
 
 MODE_VALUES: dict[str, bool | None] = {
     "static": False,
@@ -136,9 +136,7 @@ def parse_recompile_events(log: str) -> list[dict[str, Any]]:
     recompile_pattern = re.compile(
         r"\[__recompiles\]\s+Recompiling function\s+(.+?)(?:\s+in\s+.*)?$"
     )
-    failure_pattern = re.compile(
-        r"\[__recompiles\]\s+-\s+\d+/\d+:\s+(.+)$"
-    )
+    failure_pattern = re.compile(r"\[__recompiles\]\s+-\s+\d+/\d+:\s+(.+)$")
     events: list[dict[str, Any]] = []
 
     for line in log.splitlines():
@@ -204,9 +202,7 @@ def render_recompile_log(modes: dict[str, dict[str, Any]]) -> str:
         if not events:
             lines.append("No recompilations recorded.")
         for event_index, event in enumerate(events, start=1):
-            lines.append(
-                f"Recompile {event_index}: function {event['function']}"
-            )
+            lines.append(f"Recompile {event_index}: function {event['function']}")
             for failure in event["guard_failures"]:
                 lines.append(f"- {failure}")
         lines.append("")
@@ -252,8 +248,7 @@ def render_summary(result: dict[str, Any]) -> str:
     for index, length in enumerate(sequence):
         suffix = " (repeat)" if length in sequence[:index] else ""
         states = [
-            render_call_state(modes[mode]["calls"][index])
-            for mode in MODE_VALUES
+            render_call_state(modes[mode]["calls"][index]) for mode in MODE_VALUES
         ]
         call_rows.append(
             f"| {index + 1} | {length}{suffix} | {states[0]} | "
@@ -320,10 +315,7 @@ def run(config: ExperimentConfig, output_dir: Path) -> dict[str, Any]:
     if config.model_dim <= 0 or config.hidden_dim <= 0:
         raise ValueError("model and hidden dimensions must be positive")
 
-    captured_modes = {
-        mode: run_isolated_mode(mode, config)
-        for mode in MODE_VALUES
-    }
+    captured_modes = {mode: run_isolated_mode(mode, config) for mode in MODE_VALUES}
     modes: dict[str, dict[str, Any]] = {}
     for mode, captured in captured_modes.items():
         graph_metadata = [
@@ -361,9 +353,7 @@ def run(config: ExperimentConfig, output_dir: Path) -> dict[str, Any]:
     (output_dir / "results.json").write_text(
         json.dumps(result, indent=2) + "\n", encoding="utf-8"
     )
-    (output_dir / "summary.md").write_text(
-        render_summary(result), encoding="utf-8"
-    )
+    (output_dir / "summary.md").write_text(render_summary(result), encoding="utf-8")
     (output_dir / "recompiles.txt").write_text(
         render_recompile_log(modes), encoding="utf-8"
     )

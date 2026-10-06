@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "environment": {
+    "torch": "2.12.0+cu130",
+    "device": "cuda",
+    "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU"
+  },
+  "case": "data_dependent_python_branch",
+  "inductor_validation": [
+    {
+      "case": "positive",
+      "shape": [
+        16
+      ],
+      "contiguous": true,
+      "passed": true,
+      "atol": 1e-05,
+      "rtol": 1e-05
+    },
+    {
+      "case": "negative",
+      "shape": [
+        16
+      ],
+      "contiguous": true,
+      "passed": true,
+      "atol": 1e-05,
+      "rtol": 1e-05
+    },
+    {
+      "case": "zero_predicate",
+      "shape": [
+        16
+      ],
+      "contiguous": true,
+      "passed": true,
+      "atol": 1e-05,
+      "rtol": 1e-05
+    },
+    {
+      "case": "mixed_zero_sum",
+      "shape": [
+        16
+      ],
+      "contiguous": true,
+      "passed": true,
+      "atol": 1e-05,
+      "rtol": 1e-05
+    },
+    {
+      "case": "odd_length",
+      "shape": [
+        17
+      ],
+      "contiguous": true,
+      "passed": true,
+      "atol": 1e-05,
+      "rtol": 1e-05
+    },
+    {
+      "case": "noncontiguous",
+      "shape": [
+        16
+      ],
+      "contiguous": false,
+      "passed": true,
+      "atol": 1e-05,
+      "rtol": 1e-05
+    }
+  ],
+  "original": {
+    "implementation": "PythonDataDependentBranch",
+    "positive_correct": true,
+    "negative_correct": true,
+    "graph_count": 3,
+    "fullgraph_failure": {
+      "exception_type": "Unsupported",
+      "reason": "Data-dependent branching"
+    }
+  },
+  "fixed": {
+    "implementation": "CondDataDependentBranch",
+    "positive_correct": true,
+    "negative_correct": true,
+    "graph_count": 1,
+    "fullgraph": true
+  }
+}

@@ -26,7 +26,6 @@ from compilelab.transformer_optimization import (
 )
 from compilelab.workload import make_mlp_input
 
-
 QUANTIZATION_STRATEGIES = (
     "bf16",
     "int8_weight_only",

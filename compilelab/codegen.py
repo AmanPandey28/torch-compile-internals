@@ -8,14 +8,16 @@ import statistics
 import tempfile
 import time
 from collections import Counter, defaultdict
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import torch
 from torch.profiler import ProfilerActivity, profile
 
 from compilelab.benchmark import environment_metadata
+from compilelab.trace_analysis import summarize_trace
 from compilelab.workload import GatedMLP, make_mlp_input
 
 
@@ -73,7 +75,7 @@ def find_inductor_wrapper(cache_dir: Path) -> tuple[Path, str]:
     return candidates[0]
 
 
-def timing_statistics(samples: list[float]) -> dict[str, float]:
+def timing_statistics(samples: list[float]) -> dict[str, Any]:
     if not samples:
         raise ValueError("timing samples cannot be empty")
     ordered = sorted(samples)
@@ -83,6 +85,7 @@ def timing_statistics(samples: list[float]) -> dict[str, float]:
         "p90_us": ordered[p90_index],
         "min_us": min(samples),
         "max_us": max(samples),
+        "samples_us": samples,
     }
 
 
@@ -154,14 +157,14 @@ def profile_cuda_kernels(
             function()
         torch.cuda.synchronize(device)
 
+    with tempfile.TemporaryDirectory(prefix="torchcompile-kernel-trace-") as name:
+        trace_path = Path(name) / "trace.json"
+        captured.export_chrome_trace(str(trace_path))
+        trace = summarize_trace(trace_path)
     categories: dict[str, list[float]] = defaultdict(list)
-    for event in captured.events():
-        if not str(event.device_type).endswith("CUDA"):
-            continue
-        if event.name in {"Activity Buffer Request", "ProfilerStep*"}:
-            continue
-        categories[classify_cuda_kernel(event.name)].append(
-            float(event.device_time_total)
+    for kernel in trace["kernels"]:
+        categories[classify_cuda_kernel(kernel["name"])].extend(
+            [kernel["mean_device_time_us"]] * kernel["launch_count"]
         )
 
     serialized_categories = {
@@ -180,6 +183,9 @@ def profile_cuda_kernels(
         "launch_count": launch_count,
         "launches_per_invocation": launch_count / iterations,
         "categories": serialized_categories,
+        "kernels": trace["kernels"],
+        "cuda_graph_replay_calls": trace["cuda_graph_replay_calls"],
+        "compilation_events": trace["compilation_events"],
     }
 
 
@@ -190,8 +196,7 @@ def render_summary(result: dict[str, Any]) -> str:
     compiled = runtime["compiled"]
     profiles = result["kernel_profile"]
     external_calls = ", ".join(
-        f"{count} × {name}"
-        for name, count in wrapper["external_kernel_calls"].items()
+        f"{count} × {name}" for name, count in wrapper["external_kernel_calls"].items()
     )
     triton_kernels = ", ".join(wrapper["triton_kernel_definitions"])
     speedup = (
@@ -275,12 +280,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         os.environ["TORCHINDUCTOR_CACHE_DIR"] = cache_name
         try:
             torch.manual_seed(args.seed)
-            model = GatedMLP(args.model_dim, args.hidden_dim).to(
-                device=device, dtype=dtype
-            ).eval()
-            inputs = make_mlp_input(
-                shape, device=device, dtype=dtype, seed=args.seed
+            model = (
+                GatedMLP(args.model_dim, args.hidden_dim)
+                .to(device=device, dtype=dtype)
+                .eval()
             )
+            inputs = make_mlp_input(shape, device=device, dtype=dtype, seed=args.seed)
 
             with torch.inference_mode():
                 eager_output = model(*inputs)

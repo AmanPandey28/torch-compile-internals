@@ -37,9 +37,7 @@ class PackedGatedMLP(nn.Module):
             raise ValueError("model_dim and hidden_dim must be positive")
         self.model_dim = model_dim
         self.hidden_dim = hidden_dim
-        self.gate_up_proj = nn.Linear(
-            model_dim, 2 * hidden_dim, bias=False
-        )
+        self.gate_up_proj = nn.Linear(model_dim, 2 * hidden_dim, bias=False)
         self.down_proj = nn.Linear(hidden_dim, model_dim, bias=False)
 
     @classmethod
@@ -58,14 +56,10 @@ class PackedGatedMLP(nn.Module):
             raise ValueError("down projection output must match the model size")
 
         weight = source.gate_proj.weight
-        packed = cls(model_dim, hidden_dim).to(
-            device=weight.device, dtype=weight.dtype
-        )
+        packed = cls(model_dim, hidden_dim).to(device=weight.device, dtype=weight.dtype)
         with torch.no_grad():
             packed.gate_up_proj.weight.copy_(
-                torch.cat(
-                    (source.gate_proj.weight, source.up_proj.weight), dim=0
-                )
+                torch.cat((source.gate_proj.weight, source.up_proj.weight), dim=0)
             )
             packed.down_proj.weight.copy_(source.down_proj.weight)
         packed.train(source.training)
@@ -104,9 +98,7 @@ def make_inputs(
     generator_device = device.type if device.type == "cuda" else "cpu"
     generator = torch.Generator(device=generator_device).manual_seed(seed)
     x = torch.randn(shape, device=device, dtype=dtype, generator=generator)
-    bias = torch.randn(
-        (shape[-1],), device=device, dtype=dtype, generator=generator
-    )
+    bias = torch.randn((shape[-1],), device=device, dtype=dtype, generator=generator)
     return x, bias
 
 

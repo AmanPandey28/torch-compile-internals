@@ -146,8 +146,10 @@ def test_recompile_log_parsing_removes_runtime_prefixes() -> None:
         (
             f"{prefix} Recompiling function forward in /private/workload.py:26",
             f"{prefix} triggered by the following guard failure(s):",
-            f"{prefix} - 0/0: tensor 'x' size mismatch at index 1. "
-            "expected 64, actual 128",
+            (
+                f"{prefix} - 0/0: tensor 'x' size mismatch at index 1. "
+                "expected 64, actual 128"
+            ),
         )
     )
 
@@ -292,9 +294,7 @@ def test_packed_qkv_preserves_state_outputs_and_gradients() -> None:
 
 def test_packed_transformer_block_round_trip_and_fullgraph() -> None:
     torch.manual_seed(7)
-    original = TransformerBlock(
-        model_dim=8, num_heads=2, hidden_dim=16
-    ).eval()
+    original = TransformerBlock(model_dim=8, num_heads=2, hidden_dim=16).eval()
     packed = PackedTransformerBlock.from_unpacked(original)
     restored = packed.to_unpacked()
     inputs = torch.randn(2, 4, 8)

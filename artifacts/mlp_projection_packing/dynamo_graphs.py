@@ -1,4 +1,4 @@
-# ---- original GatedMLP ----
+# ---- unpacked GatedMLP ----
 def forward(self, L_self_modules_gate_proj_parameters_weight_ : torch.nn.parameter.Parameter, L_x_ : torch.Tensor, L_self_modules_up_proj_parameters_weight_ : torch.nn.parameter.Parameter, L_self_modules_down_proj_parameters_weight_ : torch.nn.parameter.Parameter):
     l_self_modules_gate_proj_parameters_weight_ = L_self_modules_gate_proj_parameters_weight_
     l_x_ = L_x_

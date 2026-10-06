@@ -13,26 +13,16 @@ triton_*/
 *.nsys-rep
 *.ncu-rep
 
-# Keep generated runs local. Curated small samples can be force-added.
+# Keep generated runs and private material local; publish curated results only.
 artifacts/*
-!artifacts/sample_cpu/
-!artifacts/sample_cpu/**
-!artifacts/sample_gpu/
-!artifacts/sample_gpu/**
-!artifacts/graph_break_case/
-!artifacts/graph_break_case/**
-!artifacts/sample_mlp_gpu/
-!artifacts/sample_mlp_gpu/**
-!artifacts/mlp_codegen/
-!artifacts/mlp_codegen/**
-!artifacts/dynamic_shapes/
-!artifacts/dynamic_shapes/**
 !artifacts/mlp_projection_packing/
 !artifacts/mlp_projection_packing/**
 !artifacts/transformer_optimization/
 !artifacts/transformer_optimization/**
 !artifacts/transformer_quantization/
 !artifacts/transformer_quantization/**
+!artifacts/benchmark_results/
+!artifacts/benchmark_results/**
 artifacts/**/__pycache__/
 
 # LaTeX build products.

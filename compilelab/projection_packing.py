@@ -4,9 +4,10 @@ import argparse
 import json
 import os
 import tempfile
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import torch
 
@@ -18,7 +19,6 @@ from compilelab.codegen import (
     profile_cuda_kernels,
 )
 from compilelab.workload import GatedMLP, PackedGatedMLP, make_mlp_input
-
 
 CORRECTNESS_ATOL = 2e-2
 CORRECTNESS_RTOL = 2e-2
@@ -75,12 +75,15 @@ def compile_and_capture_wrapper(
 
             _, wrapper_source = find_inductor_wrapper(cache_dir)
             wrapper_analysis = classify_inductor_wrapper(wrapper_source)
-            sanitized_wrapper = "\n".join(
-                line.rstrip()
-                for line in wrapper_source.replace(
-                    str(cache_dir), "<inductor-cache>"
-                ).splitlines()
-            ).rstrip() + "\n"
+            sanitized_wrapper = (
+                "\n".join(
+                    line.rstrip()
+                    for line in wrapper_source.replace(
+                        str(cache_dir), "<inductor-cache>"
+                    ).splitlines()
+                ).rstrip()
+                + "\n"
+            )
         finally:
             if previous_cache is None:
                 os.environ.pop("TORCHINDUCTOR_CACHE_DIR", None)
@@ -114,7 +117,7 @@ def capture_transformation_graphs(
     if original_count != 1 or packed_count != 1:
         raise RuntimeError("expected one full Dynamo graph for each workload")
     return (
-        "# ---- original GatedMLP ----\n"
+        "# ---- unpacked GatedMLP ----\n"
         f"{original_graphs[0].strip()}\n\n"
         "# ---- packed GatedMLP ----\n"
         f"{packed_graphs[0].strip()}\n"
@@ -147,9 +150,7 @@ def run_case(
     original_parameter_count = sum(
         parameter.numel() for parameter in original.parameters()
     )
-    packed_parameter_count = sum(
-        parameter.numel() for parameter in packed.parameters()
-    )
+    packed_parameter_count = sum(parameter.numel() for parameter in packed.parameters())
     if original_parameter_count != packed_parameter_count:
         raise AssertionError("projection packing changed the parameter count")
 
@@ -214,18 +215,12 @@ def run_case(
             for name, function in variants.items()
         }
 
-    original_compiled_us = runtime["original_compiled"][
-        "synchronized_total"
-    ]["median_us"]
-    packed_compiled_us = runtime["packed_compiled"]["synchronized_total"][
+    original_compiled_us = runtime["original_compiled"]["synchronized_total"][
         "median_us"
     ]
-    original_eager_us = runtime["original_eager"]["synchronized_total"][
-        "median_us"
-    ]
-    packed_eager_us = runtime["packed_eager"]["synchronized_total"][
-        "median_us"
-    ]
+    packed_compiled_us = runtime["packed_compiled"]["synchronized_total"]["median_us"]
+    original_eager_us = runtime["original_eager"]["synchronized_total"]["median_us"]
+    packed_eager_us = runtime["packed_eager"]["synchronized_total"]["median_us"]
     result = {
         "shape": list(shape),
         "token_count": batch_size * sequence_length,
@@ -273,27 +268,33 @@ def render_summary(result: dict[str, Any]) -> str:
     original_eager_launches = original_profile["original_eager"][
         "launches_per_invocation"
     ]
-    packed_eager_launches = original_profile["packed_eager"][
-        "launches_per_invocation"
-    ]
+    packed_eager_launches = original_profile["packed_eager"]["launches_per_invocation"]
     structural_rows = [
-        f"| External GEMM calls in Inductor wrapper | {original_external_calls} | "
-        f"{packed_external_calls} |",
-        f"| Triton kernel launches in wrapper | {original_triton_launches} | "
-        f"{packed_triton_launches} |",
-        f"| Compiled CUDA launches per invocation | "
-        f"{original_compiled_launches:.1f} | {packed_compiled_launches:.1f} |",
-        f"| Eager CUDA launches per invocation | {original_eager_launches:.1f} | "
-        f"{packed_eager_launches:.1f} |",
+        (
+            f"| External GEMM calls in Inductor wrapper | {original_external_calls} | "
+            f"{packed_external_calls} |"
+        ),
+        (
+            f"| Triton kernel launches in wrapper | {original_triton_launches} | "
+            f"{packed_triton_launches} |"
+        ),
+        (
+            f"| Compiled CUDA launches per invocation | "
+            f"{original_compiled_launches:.1f} | {packed_compiled_launches:.1f} |"
+        ),
+        (
+            f"| Eager CUDA launches per invocation | {original_eager_launches:.1f} | "
+            f"{packed_eager_launches:.1f} |"
+        ),
     ]
     latency_rows = []
     for case in cases:
         original_us = case["runtime_breakdown"]["original_compiled"][
             "synchronized_total"
         ]["median_us"]
-        packed_us = case["runtime_breakdown"]["packed_compiled"][
-            "synchronized_total"
-        ]["median_us"]
+        packed_us = case["runtime_breakdown"]["packed_compiled"]["synchronized_total"][
+            "median_us"
+        ]
         latency_rows.append(
             f"| {' × '.join(str(value) for value in case['shape'])} | "
             f"{original_us:.2f} µs | {packed_us:.2f} µs | "
@@ -316,9 +317,7 @@ def render_summary(result: dict[str, Any]) -> str:
             "improve compiled latency in the measured shapes."
         )
 
-    eager_wins = [
-        case for case in cases if case["comparison"]["eager_speedup"] > 1.0
-    ]
+    eager_wins = [case for case in cases if case["comparison"]["eager_speedup"] > 1.0]
     packed_compiled_beats_eager = [
         case
         for case in cases
@@ -332,13 +331,13 @@ def render_summary(result: dict[str, Any]) -> str:
     if not eager_wins and not packed_compiled_beats_eager:
         scope_statement = (
             "Packing did not improve eager latency, and the packed compiled path "
-            "did not beat original eager execution in these cases. The measured "
-            "win is specifically packed compiled versus original compiled."
+            "did not beat unpacked eager execution in these cases. The measured "
+            "win is specifically packed compiled versus unpacked compiled."
         )
     else:
         scope_statement = (
             f"Packing improved eager latency in {len(eager_wins)} cases, and packed "
-            f"compiled execution beat original eager in "
+            f"compiled execution beat unpacked eager in "
             f"{len(packed_compiled_beats_eager)} cases."
         )
     maximum_error = max(
@@ -347,15 +346,15 @@ def render_summary(result: dict[str, Any]) -> str:
         for check in case["correctness"].values()
     )
     representative_runtime = representative["runtime_breakdown"]
-    original_enqueue = representative_runtime["original_compiled"][
-        "host_enqueue"
-    ]["median_us"]
+    original_enqueue = representative_runtime["original_compiled"]["host_enqueue"][
+        "median_us"
+    ]
     packed_enqueue = representative_runtime["packed_compiled"]["host_enqueue"][
         "median_us"
     ]
-    original_wait = representative_runtime["original_compiled"][
-        "completion_wait"
-    ]["median_us"]
+    original_wait = representative_runtime["original_compiled"]["completion_wait"][
+        "median_us"
+    ]
     packed_wait = representative_runtime["packed_compiled"]["completion_wait"][
         "median_us"
     ]
@@ -374,12 +373,12 @@ def render_summary(result: dict[str, Any]) -> str:
 
 The transformation concatenates the gate and up projection weights once during
 model conversion. The packed model computes both projections with one linear
-operation, splits the result into views, and preserves the original down
-projection. Parameter count remains {representative['parameter_count']:,}.
+operation, splits the result into views, and preserves the down
+projection. Parameter count remains {representative["parameter_count"]:,}.
 
 ## Generated execution
 
-| Structural metric | Original | Packed |
+| Structural metric | Unpacked | Packed |
 |---|---:|---:|
 {chr(10).join(structural_rows)}
 
@@ -389,7 +388,7 @@ and does not introduce another profiled CUDA launch.
 
 ## Compiled latency
 
-| Input shape | Original | Packed | Speedup |
+| Input shape | Unpacked | Packed | Speedup |
 |---|---:|---:|---:|
 {chr(10).join(latency_rows)}
 
@@ -402,8 +401,8 @@ For the representative shape, median host enqueue changed from
 wait changed from {original_wait:.2f} µs to {packed_wait:.2f} µs.
 {component_statement}
 
-All eager and compiled outputs passed {result['experiment']['dtype']} tolerance
-against the original model; the maximum observed absolute error was
+All eager and compiled outputs passed {result["experiment"]["dtype"]} tolerance
+against the unpacked model; the maximum observed absolute error was
 {maximum_error:.3e}. The result is specific to the recorded shapes, software
 stack, and RTX 5050 Laptop GPU.
 """
@@ -480,10 +479,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     (args.output_dir / "summary.md").write_text(
         render_summary(result), encoding="utf-8"
     )
-    (args.output_dir / "dynamo_graphs.py").write_text(
-        graph_artifact, encoding="utf-8"
-    )
-    (args.output_dir / "original_inductor.py").write_text(
+    (args.output_dir / "dynamo_graphs.py").write_text(graph_artifact, encoding="utf-8")
+    (args.output_dir / "unpacked_inductor.py").write_text(
         representative_sources["original"], encoding="utf-8"
     )
     (args.output_dir / "packed_inductor.py").write_text(

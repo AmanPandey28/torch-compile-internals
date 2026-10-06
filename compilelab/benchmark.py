@@ -9,13 +9,19 @@ import platform
 import statistics
 import tempfile
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import torch
 
-from compilelab.workload import GatedMLP, PointwiseReduction, make_inputs, make_mlp_input
+from compilelab.workload import (
+    GatedMLP,
+    PointwiseReduction,
+    make_inputs,
+    make_mlp_input,
+)
 
 
 def synchronize(device: torch.device) -> None:
@@ -50,7 +56,7 @@ def measure(
     device: torch.device,
     warmup: int,
     iterations: int,
-) -> dict[str, float]:
+) -> dict[str, Any]:
     for _ in range(warmup):
         function()
     synchronize(device)
@@ -61,6 +67,37 @@ def measure(
         "p90_ms": percentile(samples, 0.90),
         "min_ms": min(samples),
         "max_ms": max(samples),
+        "samples_ms": samples,
+    }
+
+
+def measure_variants(
+    variants: dict[str, Callable[[], torch.Tensor]],
+    *,
+    device: torch.device,
+    warmup: int,
+    iterations: int,
+) -> dict[str, dict[str, Any]]:
+    """Measure warmed variants in alternating order; retain every sample."""
+    for function in variants.values():
+        for _ in range(warmup):
+            function()
+    synchronize(device)
+    samples: dict[str, list[float]] = {name: [] for name in variants}
+    names = list(variants)
+    for iteration in range(iterations):
+        order = names if iteration % 2 == 0 else list(reversed(names))
+        for name in order:
+            samples[name].append(time_once(variants[name], device))
+    return {
+        name: {
+            "median_ms": statistics.median(values),
+            "p90_ms": percentile(values, 0.90),
+            "min_ms": min(values),
+            "max_ms": max(values),
+            "samples_ms": values,
+        }
+        for name, values in samples.items()
     }
 
 
@@ -105,7 +142,9 @@ def parse_shape(value: str) -> tuple[int, ...]:
     try:
         shape = tuple(int(part.strip()) for part in value.split(","))
     except ValueError as exc:
-        raise argparse.ArgumentTypeError("shape must be comma-separated integers") from exc
+        raise argparse.ArgumentTypeError(
+            "shape must be comma-separated integers"
+        ) from exc
     if len(shape) < 2 or any(dimension <= 0 for dimension in shape):
         raise argparse.ArgumentTypeError(
             "shape must contain at least two positive dimensions"
@@ -136,9 +175,7 @@ def environment_metadata(device: torch.device) -> dict[str, Any]:
     }
     if device.type == "cuda":
         metadata["device_name"] = torch.cuda.get_device_name(device)
-        metadata["compute_capability"] = list(
-            torch.cuda.get_device_capability(device)
-        )
+        metadata["compute_capability"] = list(torch.cuda.get_device_capability(device))
     else:
         metadata["device_name"] = platform.processor() or "CPU"
         metadata["cpu_threads"] = torch.get_num_threads()
@@ -154,9 +191,7 @@ def build_workload(
     torch.manual_seed(args.seed)
     if args.workload == "pointwise":
         model = PointwiseReduction()
-        inputs = make_inputs(
-            args.shape, device=device, dtype=dtype, seed=args.seed
-        )
+        inputs = make_inputs(args.shape, device=device, dtype=dtype, seed=args.seed)
         metadata = {
             "workload": "PointwiseReduction",
             "shape": list(args.shape),
@@ -164,9 +199,7 @@ def build_workload(
     else:
         shape = (args.batch_size, args.sequence_length, args.model_dim)
         model = GatedMLP(args.model_dim, args.hidden_dim)
-        inputs = make_mlp_input(
-            shape, device=device, dtype=dtype, seed=args.seed
-        )
+        inputs = make_mlp_input(shape, device=device, dtype=dtype, seed=args.seed)
         metadata = {
             "workload": "GatedMLP",
             "shape": list(shape),
@@ -229,23 +262,16 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
     device = resolve_device(args.device)
     dtype = resolve_dtype(args.dtype, device)
-    model, inputs, workload_metadata = build_workload(
-        args, device=device, dtype=dtype
-    )
+    model, inputs, workload_metadata = build_workload(args, device=device, dtype=dtype)
 
     with torch.inference_mode():
         eager_output = model(*inputs)
-        eager_timing = measure(
-            lambda: model(*inputs),
-            device=device,
-            warmup=args.warmup,
-            iterations=args.iterations,
-        )
+        for _ in range(args.warmup):
+            model(*inputs)
+        synchronize(device)
 
         compiled_model = torch.compile(model, fullgraph=True)
-        compiled_first_call_ms = time_once(
-            lambda: compiled_model(*inputs), device
-        )
+        compiled_first_call_ms = time_once(lambda: compiled_model(*inputs), device)
         compiled_output = compiled_model(*inputs)
 
         tolerance = 1e-4 if dtype == torch.float32 else 2e-2
@@ -254,13 +280,19 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ):
             raise AssertionError("compiled output does not match eager output")
 
-        compiled_timing = measure(
-            lambda: compiled_model(*inputs),
+        timings = measure_variants(
+            {
+                "eager": lambda: model(*inputs),
+                "compiled": lambda: compiled_model(*inputs),
+            },
             device=device,
             warmup=args.warmup,
             iterations=args.iterations,
         )
         graph_code, graph_count = capture_dynamo_graph(model, inputs)
+
+    eager_timing = timings["eager"]
+    compiled_timing = timings["compiled"]
 
     delta = (eager_output.float() - compiled_output.float()).abs()
     eager_median = eager_timing["median_ms"]
@@ -277,6 +309,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "iterations": args.iterations,
             "fullgraph": True,
             "isolated_inductor_cache": args.isolated_cache,
+            "measurement_order": "alternating eager/compiled after warmup",
         },
         "correctness": {
             "allclose": True,
@@ -327,9 +360,7 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("pointwise", "gated-mlp"),
         default="pointwise",
     )
-    parser.add_argument(
-        "--device", choices=("auto", "cpu", "cuda"), default="auto"
-    )
+    parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument(
         "--dtype",
         choices=("float32", "float16", "bfloat16"),
@@ -349,9 +380,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=True,
         help="use a fresh temporary Inductor cache (default: enabled)",
     )
-    parser.add_argument(
-        "--output-dir", type=Path, default=Path("artifacts/latest")
-    )
+    parser.add_argument("--output-dir", type=Path, default=Path("artifacts/latest"))
     return parser
 
 

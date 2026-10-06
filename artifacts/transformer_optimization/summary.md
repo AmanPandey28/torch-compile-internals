@@ -6,7 +6,7 @@ The optimized block packs Q/K/V and gate/up weights once during model conversion
 
 ## Block-level results
 
-| Shape | Original eager | Original compiled | Packed compiled | Best packed mode | Best latency |
+| Shape | Unpacked eager | Unpacked compiled | Packed compiled | Best packed mode | Best latency |
 |---|---:|---:|---:|---:|---:|
 | 1 × 1 × 768 | 147.41 µs | 183.34 µs | 162.28 µs | max-autotune | 101.59 µs |
 | 1 × 128 × 768 | 169.83 µs | 217.00 µs | 185.86 µs | reduce-overhead | 175.95 µs |
@@ -40,7 +40,7 @@ effectively tied at the largest shape (0.999×).
 
 ## Generated execution
 
-| Representative structural metric | Original | Packed |
+| Representative structural metric | Unpacked | Packed |
 |---|---:|---:|
 | External GEMM calls | 7 | 4 |
 | Generated Triton launch sites | 4 | 4 |
@@ -61,5 +61,5 @@ kernel.
 
 Both forms lowered to one generated launch, so manually decomposing RMSNorm did
 not remove another kernel. All strategies passed numerical comparison with
-original eager execution. Results are specific to the recorded software,
+unpacked eager execution. Results are specific to the recorded software,
 shapes, and RTX 5050 Laptop GPU.

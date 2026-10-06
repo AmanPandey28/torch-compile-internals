@@ -1,0 +1,280 @@
+Graph Count: 1
+Graph Break Count: 0
+Op Count: 4
+Break Reasons:
+Ops per Graph:
+  Ops 1:
+    <built-in function mul>
+    <built-in function gt>
+    cond
+    <built-in function getitem>
+Out Guards:
+  Guard 1:
+    Name: ''
+    Source: shape_env
+    Create Function: SHAPE_ENV
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 2:
+    Name: ''
+    Source: global
+    Create Function: DETERMINISTIC_ALGORITHMS
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 3:
+    Name: ''
+    Source: global
+    Create Function: GRAD_MODE
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 4:
+    Name: ''
+    Source: global
+    Create Function: DEFAULT_DEVICE
+    Guard Types: ['DEFAULT_DEVICE']
+    Code List: ['utils_device.CURRENT_DEVICE == None']
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 5:
+    Name: ''
+    Source: global
+    Create Function: GLOBAL_STATE
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 6:
+    Name: ''
+    Source: global
+    Create Function: TORCH_FUNCTION_STATE
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 7:
+    Name: ''
+    Source: global
+    Create Function: AUTOGRAD_SAVED_TENSORS_HOOKS
+    Guard Types: ['AUTOGRAD_SAVED_TENSORS_HOOKS']
+    Code List: ['torch._functorch.aot_autograd.utils.top_saved_tensors_hooks ids == None']
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 8:
+    Name: "L['x']"
+    Source: local
+    Create Function: TENSOR_MATCH
+    Guard Types: ['TENSOR_MATCH']
+    Code List: ["hasattr(L['x'], '_dynamo_dynamic_indices') == False"]
+    Object Weakref: <weakref at 0x782a84293330; to 'Tensor' at 0x782da58c1bd0>
+    Guarded Class Weakref: <weakref at 0x782d211be200; to 'torch._C._TensorMeta' at 0x5b62c82ad6e0 (Tensor)>
+  Guard 9:
+    Name: "G['torch']"
+    Source: global
+    Create Function: MODULE_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['torch'], 132137446126544), type=<module 'torch' from '/home/aman/miniforge3/lib/python3.12/site-packages/torch/__init__.py'>"]
+    Object Weakref: <weakref at 0x782a840ae430; to 'module' at 0x782da589b3d0>
+    Guarded Class Weakref: <weakref at 0x782da62ff010; to 'type' at 0x5b62ade22dc0 (module)>
+  Guard 10:
+    Name: "G['torch'].cond"
+    Source: global
+    Create Function: CLOSURE_MATCH
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 11:
+    Name: "G['__import_torch_dot__higher_order_ops_dot_cond']"
+    Source: global
+    Create Function: MODULE_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['__import_torch_dot__higher_order_ops_dot_cond'], 132133624877824), type=<module 'torch._higher_order_ops.cond' from '/home/aman/miniforge3/lib/python3.12/site-packages/torch/_higher_order_ops/cond.py'>"]
+    Object Weakref: <weakref at 0x782a840c18a0; to 'module' at 0x782cc1c61300>
+    Guarded Class Weakref: <weakref at 0x782da62ff010; to 'type' at 0x5b62ade22dc0 (module)>
+  Guard 12:
+    Name: "G['__import_torch_dot__higher_order_ops_dot_cond'].torch"
+    Source: global
+    Create Function: DUPLICATE_INPUT
+    Guard Types: ['DUPLICATE_INPUT']
+    Code List: ["G['torch'] is G['__import_torch_dot__higher_order_ops_dot_cond'].torch"]
+    Object Weakref: <weakref at 0x782a840ae430; to 'module' at 0x782da589b3d0>
+    Guarded Class Weakref: <weakref at 0x782da62ff010; to 'type' at 0x5b62ade22dc0 (module)>
+  Guard 13:
+    Name: "G['torch'].compiler"
+    Source: global
+    Create Function: MODULE_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['torch'].compiler, 132133622627072), type=<module 'torch.compiler' from '/home/aman/miniforge3/lib/python3.12/site-packages/torch/compiler/__init__.py'>"]
+    Object Weakref: <weakref at 0x782a8429b880; to 'module' at 0x782cc1a3bb00>
+    Guarded Class Weakref: <weakref at 0x782da62ff010; to 'type' at 0x5b62ade22dc0 (module)>
+  Guard 14:
+    Name: "G['torch'].compiler.is_dynamo_compiling"
+    Source: global
+    Create Function: CLOSURE_MATCH
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 15:
+    Name: "G['__import_torch_dot__higher_order_ops_dot_cond'].cond_op"
+    Source: global
+    Create Function: TYPE_MATCH
+    Guard Types: ['TYPE_MATCH']
+    Code List: ["___check_type_id(G['__import_torch_dot__higher_order_ops_dot_cond'].cond_op, 100479840442896), type=<class 'torch._higher_order_ops.cond.CondOp'>"]
+    Object Weakref: <weakref at 0x782a840c1e40; to 'CondOp' at 0x782cc1c6d9d0>
+    Guarded Class Weakref: <weakref at 0x782cc1c619e0; to 'ABCMeta' at 0x5b62c9325a10 (CondOp)>
+  Guard 16:
+    Name: "G['torch'].sin"
+    Source: global
+    Create Function: BUILTIN_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['torch'].sin, 132137436365184), type=<built-in method sin of type object at 0x782d1e142d60>"]
+    Object Weakref: <weakref at 0x782a840ac180; to 'builtin_function_or_method' at 0x782da4f4c180>
+    Guarded Class Weakref: <weakref at 0x782da62cc4a0; to 'type' at 0x5b62ade23300 (builtin_function_or_method)>
+  Guard 17:
+    Name: "G['__import_torch_dot_utils_dot__pytree']"
+    Source: global
+    Create Function: MODULE_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['__import_torch_dot_utils_dot__pytree'], 132133646363648), type=<module 'torch.utils._pytree' from '/home/aman/miniforge3/lib/python3.12/site-packages/torch/utils/_pytree.py'>"]
+    Object Weakref: <weakref at 0x782a840c12b0; to 'module' at 0x782cc30dec00>
+    Guarded Class Weakref: <weakref at 0x782da62ff010; to 'type' at 0x5b62ade22dc0 (module)>
+  Guard 18:
+    Name: "G['__builtins_dict___25']['list']"
+    Source: global
+    Create Function: BUILTIN_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['__builtins_dict___25']['list'], 100479382221824), type=<class 'list'>"]
+    Object Weakref: <weakref at 0x782da62fc7c0; to 'type' at 0x5b62ade27400>
+    Guarded Class Weakref: <weakref at 0x782da62acc20; to 'type' at 0x5b62ade1fae0 (type)>
+  Guard 19:
+    Name: "G['__import_torch_dot_utils_dot__pytree'].Any"
+    Source: global
+    Create Function: CLASS_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['__import_torch_dot_utils_dot__pytree'].Any, 100479736915392), type=typing.Any"]
+    Object Weakref: <weakref at 0x782da58c3dd0; to '_AnyMeta' at 0x5b62c306a5c0>
+    Guarded Class Weakref: <weakref at 0x782da58c3d80; to 'type' at 0x5b62c306a1e0 (_AnyMeta)>
+  Guard 20:
+    Name: "G['__import_torch_dot_utils_dot__pytree'].tree_is_leaf"
+    Source: global
+    Create Function: CLOSURE_MATCH
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 21:
+    Name: "__import__('torch').utils._pytree.SUPPORTED_NODES"
+    Source: global
+    Create Function: TYPE_MATCH
+    Guard Types: ['TYPE_MATCH']
+    Code List: ["___check_type_id(__import__('torch').utils._pytree.SUPPORTED_NODES, 100479382218432), type=<class 'dict'>"]
+    Object Weakref: None
+    Guarded Class Weakref: <weakref at 0x782da62e1080; to 'type' at 0x5b62ade266c0 (dict)>
+  Guard 22:
+    Name: "__import__('torch').utils._pytree.SUPPORTED_NODES"
+    Source: global
+    Create Function: DICT_NOT_CONTAINS
+    Guard Types: ['DICT_NOT_CONTAINS']
+    Code List: ["not ___dict_contains(<class 'torch.Tensor'>, __import__('torch').utils._pytree.SUPPORTED_NODES)"]
+    Object Weakref: None
+    Guarded Class Weakref: <weakref at 0x782da62e1080; to 'type' at 0x5b62ade266c0 (dict)>
+  Guard 23:
+    Name: "G['torch'].cos"
+    Source: global
+    Create Function: BUILTIN_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['torch'].cos, 132137436356000), type=<built-in method cos of type object at 0x782d1e142d60>"]
+    Object Weakref: <weakref at 0x782a840aea20; to 'builtin_function_or_method' at 0x782da4f49da0>
+    Guarded Class Weakref: <weakref at 0x782da62cc4a0; to 'type' at 0x5b62ade23300 (builtin_function_or_method)>
+  Guard 24:
+    Name: "__import__('torch').utils._pytree.SUPPORTED_NODES"
+    Source: global
+    Create Function: DICT_NOT_CONTAINS
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 25:
+    Name: "G['__import_torch_dot_utils_dot__pytree']._LEAF_SPEC"
+    Source: global
+    Create Function: TYPE_MATCH
+    Guard Types: ['TYPE_MATCH']
+    Code List: ["___check_type_id(G['__import_torch_dot_utils_dot__pytree']._LEAF_SPEC, 100479830379536), type=<class 'torch.utils._pytree.LeafSpec'>"]
+    Object Weakref: None
+    Guarded Class Weakref: <weakref at 0x782cc2ed0fe0; to 'type' at 0x5b62c898cc10 (LeafSpec)>
+  Guard 26:
+    Name: "G['__import_torch_dot_utils_dot__pytree']._is_pytreespec_instance"
+    Source: global
+    Create Function: CLOSURE_MATCH
+    Guard Types: None
+    Code List: None
+    Object Weakref: None
+    Guarded Class Weakref: None
+  Guard 27:
+    Name: "G['__builtins_dict___25']['isinstance']"
+    Source: global
+    Create Function: BUILTIN_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['__builtins_dict___25']['isinstance'], 132137457306176), type=<built-in function isinstance>"]
+    Object Weakref: <weakref at 0x782a840c1440; to 'builtin_function_or_method' at 0x782da6344a40>
+    Guarded Class Weakref: <weakref at 0x782da62cc4a0; to 'type' at 0x5b62ade23300 (builtin_function_or_method)>
+  Guard 28:
+    Name: "G['__import_torch_dot_utils_dot__pytree'].TreeSpec"
+    Source: global
+    Create Function: CLASS_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['__import_torch_dot_utils_dot__pytree'].TreeSpec, 100479830376528), type=<class 'torch.utils._pytree.TreeSpec'>"]
+    Object Weakref: <weakref at 0x782cc2ed0ea0; to 'type' at 0x5b62c898c050>
+    Guarded Class Weakref: <weakref at 0x782da62acc20; to 'type' at 0x5b62ade1fae0 (type)>
+  Guard 29:
+    Name: "G['__builtins_dict___25']['tuple']"
+    Source: global
+    Create Function: BUILTIN_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['__builtins_dict___25']['tuple'], 100479382192800), type=<class 'tuple'>"]
+    Object Weakref: <weakref at 0x782da63067a0; to 'type' at 0x5b62ade202a0>
+    Guarded Class Weakref: <weakref at 0x782da62acc20; to 'type' at 0x5b62ade1fae0 (type)>
+  Guard 30:
+    Name: "G['__builtins_dict___25']['len']"
+    Source: global
+    Create Function: BUILTIN_MATCH
+    Guard Types: ['ID_MATCH']
+    Code List: ["___check_obj_id(G['__builtins_dict___25']['len'], 132137457306496), type=<built-in function len>"]
+    Object Weakref: <weakref at 0x782a84257150; to 'builtin_function_or_method' at 0x782da6344b80>
+    Guarded Class Weakref: <weakref at 0x782da62cc4a0; to 'type' at 0x5b62ade23300 (builtin_function_or_method)>
+  Guard 31:
+    Name: "G['__import_torch_dot_utils_dot__pytree']._LEAF_SPEC.num_leaves"
+    Source: global
+    Create Function: EQUALS_MATCH
+    Guard Types: ['EQUALS_MATCH']
+    Code List: ["G['__import_torch_dot_utils_dot__pytree']._LEAF_SPEC.num_leaves == 1"]
+    Object Weakref: None
+    Guarded Class Weakref: <weakref at 0x782da62fdc10; to 'type' at 0x5b62ade26ea0 (int)>
+  Guard 32:
+    Name: "G['__import_torch_dot_utils_dot__pytree']._LEAF_SPEC.num_nodes"
+    Source: global
+    Create Function: EQUALS_MATCH
+    Guard Types: ['EQUALS_MATCH']
+    Code List: ["G['__import_torch_dot_utils_dot__pytree']._LEAF_SPEC.num_nodes == 1"]
+    Object Weakref: None
+    Guarded Class Weakref: <weakref at 0x782da62fdc10; to 'type' at 0x5b62ade26ea0 (int)>
+Compile Times: TorchDynamo compilation metrics:
+Function, Runtimes (s)
+_compile.compile_inner, 0.0355
+compile_attempt_0, 0.0184
+bytecode_tracing, 0.0144
+get_fake_value, 0.0023
+create_proxy, 0.0012
+wrap_to_fake_tensor_and_record, 0.0004
+variable_builder_call, 0.0037
+insert_deferred_runtime_asserts, 0.0010
+OutputGraph.call_user_compiler, 0.0001
+build_guards, 0.0161
+gc, 0.0005

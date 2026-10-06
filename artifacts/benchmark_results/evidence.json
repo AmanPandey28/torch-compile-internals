@@ -1,0 +1,1300 @@
+{
+  "schema_version": 2,
+  "manifest_sha256": "24a7fd177143376b57a50a870924356b1b3ac6e7851ee38a32803a1ab3d03431",
+  "git_revision": "4bea354ee14e7ef0b645c144a5dd84fb4a1bac70",
+  "command_scope": "Portable replay commands preserve measured workload flags; the Python executable and output directory are normalized. Source hashes identify the measured worker files.",
+  "runs": [
+    {
+      "name": "pointwise_primary_1",
+      "source_file": "compilelab/benchmark.py",
+      "source_sha256": "84f7a2a66befa9133348b7fa56ab874bf5038e7d1a2778827109679749741963",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:37:37.830875+00:00",
+      "end_utc": "2026-10-05T17:37:46.172551+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P5, 44, 6.47, [N/A], 472, 810",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 46, 8.82, [N/A], 1605, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab",
+        "--device",
+        "cuda",
+        "--warmup",
+        "20",
+        "--iterations",
+        "100",
+        "--shape",
+        "1024,4096",
+        "--output-dir",
+        "artifacts/benchmark_runs/pointwise_primary_1"
+      ],
+      "command": "python -m compilelab --device cuda --warmup 20 --iterations 100 --shape 1024,4096 --output-dir artifacts/benchmark_runs/pointwise_primary_1",
+      "status": "passed",
+      "result_sha256": "601d5e9f18928cedbfc985ca5ceb7875c1ff2621b16312456e38d2c3f9e5dcbc",
+      "result": "pointwise_primary_1/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed",
+      "verified_break_even_calls": 38625
+    },
+    {
+      "name": "mlp_primary_1",
+      "source_file": "compilelab/benchmark.py",
+      "source_sha256": "84f7a2a66befa9133348b7fa56ab874bf5038e7d1a2778827109679749741963",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:37:46.232039+00:00",
+      "end_utc": "2026-10-05T17:37:52.837585+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 46, 8.82, [N/A], 1605, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 46, 8.86, [N/A], 1582, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab",
+        "--device",
+        "cuda",
+        "--warmup",
+        "20",
+        "--iterations",
+        "100",
+        "--workload",
+        "gated-mlp",
+        "--dtype",
+        "float16",
+        "--output-dir",
+        "artifacts/benchmark_runs/mlp_primary_1"
+      ],
+      "command": "python -m compilelab --device cuda --warmup 20 --iterations 100 --workload gated-mlp --dtype float16 --output-dir artifacts/benchmark_runs/mlp_primary_1",
+      "status": "passed",
+      "result_sha256": "bc67a1c52ffa522378c5f28cc148a5cf1e7b08f91d1e4a6a80c1cbe6b13d45fa",
+      "result": "mlp_primary_1/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed",
+      "verified_break_even_calls": null
+    },
+    {
+      "name": "pointwise_primary_2",
+      "source_file": "compilelab/benchmark.py",
+      "source_sha256": "84f7a2a66befa9133348b7fa56ab874bf5038e7d1a2778827109679749741963",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:37:52.894749+00:00",
+      "end_utc": "2026-10-05T17:37:59.199068+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 46, 8.86, [N/A], 1582, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 47, 8.52, [N/A], 1620, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab",
+        "--device",
+        "cuda",
+        "--warmup",
+        "20",
+        "--iterations",
+        "100",
+        "--shape",
+        "1024,4096",
+        "--output-dir",
+        "artifacts/benchmark_runs/pointwise_primary_2"
+      ],
+      "command": "python -m compilelab --device cuda --warmup 20 --iterations 100 --shape 1024,4096 --output-dir artifacts/benchmark_runs/pointwise_primary_2",
+      "status": "passed",
+      "result_sha256": "94a9a966c374ec1cf655532325a43bd5fc2dd4137136bb9cfc22895dfc2294d1",
+      "result": "pointwise_primary_2/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed",
+      "verified_break_even_calls": 19323
+    },
+    {
+      "name": "mlp_primary_2",
+      "source_file": "compilelab/benchmark.py",
+      "source_sha256": "84f7a2a66befa9133348b7fa56ab874bf5038e7d1a2778827109679749741963",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:37:59.251564+00:00",
+      "end_utc": "2026-10-05T17:38:05.826808+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 47, 8.52, [N/A], 1620, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 47, 9.18, [N/A], 1650, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab",
+        "--device",
+        "cuda",
+        "--warmup",
+        "20",
+        "--iterations",
+        "100",
+        "--workload",
+        "gated-mlp",
+        "--dtype",
+        "float16",
+        "--output-dir",
+        "artifacts/benchmark_runs/mlp_primary_2"
+      ],
+      "command": "python -m compilelab --device cuda --warmup 20 --iterations 100 --workload gated-mlp --dtype float16 --output-dir artifacts/benchmark_runs/mlp_primary_2",
+      "status": "passed",
+      "result_sha256": "c751043a775d814874ddfb46eec601ef7629734296d99939f08e8344706d5917",
+      "result": "mlp_primary_2/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed",
+      "verified_break_even_calls": null
+    },
+    {
+      "name": "pointwise_primary_3",
+      "source_file": "compilelab/benchmark.py",
+      "source_sha256": "84f7a2a66befa9133348b7fa56ab874bf5038e7d1a2778827109679749741963",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:38:05.880780+00:00",
+      "end_utc": "2026-10-05T17:38:11.777965+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 47, 9.21, [N/A], 1650, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 48, 8.99, [N/A], 1597, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab",
+        "--device",
+        "cuda",
+        "--warmup",
+        "20",
+        "--iterations",
+        "100",
+        "--shape",
+        "1024,4096",
+        "--output-dir",
+        "artifacts/benchmark_runs/pointwise_primary_3"
+      ],
+      "command": "python -m compilelab --device cuda --warmup 20 --iterations 100 --shape 1024,4096 --output-dir artifacts/benchmark_runs/pointwise_primary_3",
+      "status": "passed",
+      "result_sha256": "a7484785859d7fa0f2660848b66ef01f92bb898779fa65996d02b80380f987c8",
+      "result": "pointwise_primary_3/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed",
+      "verified_break_even_calls": 14072
+    },
+    {
+      "name": "mlp_primary_3",
+      "source_file": "compilelab/benchmark.py",
+      "source_sha256": "84f7a2a66befa9133348b7fa56ab874bf5038e7d1a2778827109679749741963",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:38:11.828833+00:00",
+      "end_utc": "2026-10-05T17:38:17.933914+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 48, 8.99, [N/A], 1597, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 48, 9.21, [N/A], 1635, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab",
+        "--device",
+        "cuda",
+        "--warmup",
+        "20",
+        "--iterations",
+        "100",
+        "--workload",
+        "gated-mlp",
+        "--dtype",
+        "float16",
+        "--output-dir",
+        "artifacts/benchmark_runs/mlp_primary_3"
+      ],
+      "command": "python -m compilelab --device cuda --warmup 20 --iterations 100 --workload gated-mlp --dtype float16 --output-dir artifacts/benchmark_runs/mlp_primary_3",
+      "status": "passed",
+      "result_sha256": "d9b8d3e9707d76910a5d53d48305348a780cb873cb3c7b65105aa04c9c9a4e0b",
+      "result": "mlp_primary_3/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed",
+      "verified_break_even_calls": null
+    },
+    {
+      "name": "pointwise_64x257",
+      "source_file": "compilelab/benchmark.py",
+      "source_sha256": "84f7a2a66befa9133348b7fa56ab874bf5038e7d1a2778827109679749741963",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:38:17.982696+00:00",
+      "end_utc": "2026-10-05T17:38:23.889119+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 48, 9.22, [N/A], 1635, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 48, 8.42, [N/A], 1590, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab",
+        "--device",
+        "cuda",
+        "--warmup",
+        "20",
+        "--iterations",
+        "100",
+        "--shape",
+        "64,257",
+        "--output-dir",
+        "artifacts/benchmark_runs/pointwise_64x257"
+      ],
+      "command": "python -m compilelab --device cuda --warmup 20 --iterations 100 --shape 64,257 --output-dir artifacts/benchmark_runs/pointwise_64x257",
+      "status": "passed",
+      "result_sha256": "98dd49d5a6298c8f6ab9a99ec1dc0e4e482bd7bb24d8fb847f0779744a00fcde",
+      "result": "pointwise_64x257/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed",
+      "verified_break_even_calls": null
+    },
+    {
+      "name": "pointwise_128x1024",
+      "source_file": "compilelab/benchmark.py",
+      "source_sha256": "84f7a2a66befa9133348b7fa56ab874bf5038e7d1a2778827109679749741963",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:38:23.939588+00:00",
+      "end_utc": "2026-10-05T17:38:29.827247+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 48, 8.42, [N/A], 1590, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 48, 8.72, [N/A], 1695, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab",
+        "--device",
+        "cuda",
+        "--warmup",
+        "20",
+        "--iterations",
+        "100",
+        "--shape",
+        "128,1024",
+        "--output-dir",
+        "artifacts/benchmark_runs/pointwise_128x1024"
+      ],
+      "command": "python -m compilelab --device cuda --warmup 20 --iterations 100 --shape 128,1024 --output-dir artifacts/benchmark_runs/pointwise_128x1024",
+      "status": "passed",
+      "result_sha256": "3774189cfc8151ffafdd47b524a0a6f521e674614ce9a82f232cb714ba5d0699",
+      "result": "pointwise_128x1024/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed",
+      "verified_break_even_calls": null
+    },
+    {
+      "name": "mlp_1x1",
+      "source_file": "compilelab/benchmark.py",
+      "source_sha256": "84f7a2a66befa9133348b7fa56ab874bf5038e7d1a2778827109679749741963",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:38:29.875314+00:00",
+      "end_utc": "2026-10-05T17:38:35.993833+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 48, 8.82, [N/A], 1695, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 48, 8.90, [N/A], 1582, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab",
+        "--device",
+        "cuda",
+        "--warmup",
+        "20",
+        "--iterations",
+        "100",
+        "--workload",
+        "gated-mlp",
+        "--dtype",
+        "float16",
+        "--batch-size",
+        "1",
+        "--sequence-length",
+        "1",
+        "--output-dir",
+        "artifacts/benchmark_runs/mlp_1x1"
+      ],
+      "command": "python -m compilelab --device cuda --warmup 20 --iterations 100 --workload gated-mlp --dtype float16 --batch-size 1 --sequence-length 1 --output-dir artifacts/benchmark_runs/mlp_1x1",
+      "status": "passed",
+      "result_sha256": "9b63f7d3322e18ae325183fa1357f91e63c4413b0f8fd82f127238270ffcd4c2",
+      "result": "mlp_1x1/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed",
+      "verified_break_even_calls": null
+    },
+    {
+      "name": "mlp_1x128",
+      "source_file": "compilelab/benchmark.py",
+      "source_sha256": "84f7a2a66befa9133348b7fa56ab874bf5038e7d1a2778827109679749741963",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:38:36.046573+00:00",
+      "end_utc": "2026-10-05T17:38:42.120297+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 48, 8.90, [N/A], 1582, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 49, 8.84, [N/A], 1627, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab",
+        "--device",
+        "cuda",
+        "--warmup",
+        "20",
+        "--iterations",
+        "100",
+        "--workload",
+        "gated-mlp",
+        "--dtype",
+        "float16",
+        "--batch-size",
+        "1",
+        "--sequence-length",
+        "128",
+        "--output-dir",
+        "artifacts/benchmark_runs/mlp_1x128"
+      ],
+      "command": "python -m compilelab --device cuda --warmup 20 --iterations 100 --workload gated-mlp --dtype float16 --batch-size 1 --sequence-length 128 --output-dir artifacts/benchmark_runs/mlp_1x128",
+      "status": "passed",
+      "result_sha256": "d9fe6db5aece980e5a6d9d44e3978c91b8863323abbafa3b162b777c5aaea4e8",
+      "result": "mlp_1x128/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed",
+      "verified_break_even_calls": null
+    },
+    {
+      "name": "graph_break",
+      "source_file": "compilelab/graph_break.py",
+      "source_sha256": "f034d1edf00d8a0d61f5d72aa478997069287be9160a772d173936405e2f8a9d",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:38:42.176652+00:00",
+      "end_utc": "2026-10-05T17:38:48.623227+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 49, 8.87, [N/A], 1627, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 49, 8.41, [N/A], 1620, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.graph_break",
+        "--device",
+        "cuda",
+        "--output-dir",
+        "artifacts/benchmark_runs/graph_break"
+      ],
+      "command": "python -m compilelab.graph_break --device cuda --output-dir artifacts/benchmark_runs/graph_break",
+      "status": "passed",
+      "result_sha256": "a140fefa79efb6cf5cf03beaa7613aecfd9f56b54eb91790d07cee4be52af70f",
+      "result": "graph_break/results.json",
+      "environment": {
+        "torch": "2.12.0+cu130",
+        "device": "cuda",
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU"
+      },
+      "study_status": "passed"
+    },
+    {
+      "name": "dynamic_shapes",
+      "source_file": "compilelab/dynamic_shapes.py",
+      "source_sha256": "58f15050bcd2a81fcf39e4e04e21c26c9049011080dc13f02c0659ed73a2c3e4",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:38:48.672282+00:00",
+      "end_utc": "2026-10-05T17:38:58.254750+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 49, 8.44, [N/A], 1620, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 49, 8.70, [N/A], 1620, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.dynamic_shapes",
+        "--sequence-lengths",
+        "32,64,128,32,64",
+        "--output-dir",
+        "artifacts/benchmark_runs/dynamic_shapes"
+      ],
+      "command": "python -m compilelab.dynamic_shapes --sequence-lengths 32,64,128,32,64 --output-dir artifacts/benchmark_runs/dynamic_shapes",
+      "status": "passed",
+      "result_sha256": "0315a806a413820f09a3a98c5a165ca5d918dbe1c563b7f778360b1da83b12d7",
+      "result": "dynamic_shapes/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "execution_device": "cpu"
+      },
+      "study_status": "passed"
+    },
+    {
+      "name": "mlp_codegen",
+      "source_file": "compilelab/codegen.py",
+      "source_sha256": "547c58ef9f4339926c323d901604ee01102d58c8485115c250f03b7c4638c220",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:38:58.316308+00:00",
+      "end_utc": "2026-10-05T17:39:04.333707+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 49, 8.70, [N/A], 1620, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 49, 9.08, [N/A], 1597, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.codegen",
+        "--warmup",
+        "50",
+        "--iterations",
+        "500",
+        "--profile-iterations",
+        "20",
+        "--output-dir",
+        "artifacts/benchmark_runs/mlp_codegen"
+      ],
+      "command": "python -m compilelab.codegen --warmup 50 --iterations 500 --profile-iterations 20 --output-dir artifacts/benchmark_runs/mlp_codegen",
+      "status": "passed",
+      "result_sha256": "cf96659ccfa8c4090472ce5a49773a38a9cc70248c6d711d2bb323e88f20b006",
+      "result": "mlp_codegen/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ]
+      },
+      "study_status": "passed"
+    },
+    {
+      "name": "qwen_float32_no-cudagraphs_1",
+      "source_file": "compilelab/qwen.py",
+      "source_sha256": "99cd03fb9f1c43f3c99f92c240b98042a11fa32ba7e1c97b06b27b4139da8eeb",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:40:14.795201+00:00",
+      "end_utc": "2026-10-05T17:43:57.664250+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P8, 45, 7.34, [N/A], 337, 405",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 53, 8.81, [N/A], 1597, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.qwen",
+        "--dtype",
+        "float32",
+        "--configuration",
+        "no-cudagraphs",
+        "--prompt-lengths",
+        "32,44,128,512",
+        "--decode-steps",
+        "8,32",
+        "--warmup",
+        "3",
+        "--iterations",
+        "10",
+        "--output-dir",
+        "artifacts/benchmark_runs/qwen_float32_no-cudagraphs_1"
+      ],
+      "command": "python -m compilelab.qwen --dtype float32 --configuration no-cudagraphs --prompt-lengths 32,44,128,512 --decode-steps 8,32 --warmup 3 --iterations 10 --output-dir artifacts/benchmark_runs/qwen_float32_no-cudagraphs_1",
+      "status": "passed",
+      "result_sha256": "23716d3da5cadbb97840fe59d7b6017563980d91aab75721bd999c4b2060f2ec",
+      "result": "qwen_float32_no-cudagraphs_1/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ],
+        "transformers": "5.11.0"
+      },
+      "study_status": "passed",
+      "backend_compilations": 5,
+      "recompile_events": [
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        },
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "tensor 'kwargs['past_key_values'].layers[0].keys' stride mismatch at index 1. expected 64, actual 2112",
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "qwen_float32_reduce-overhead_1",
+      "source_file": "compilelab/qwen.py",
+      "source_sha256": "10a268ad3e40812dc4cef8c151f47d39fb56e717a94b27b6d2c0d642d7d2e5b7",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:58:05.405530+00:00",
+      "end_utc": "2026-10-05T18:02:08.181084+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P5, 46, 8.34, [N/A], 397, 810",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 55, 9.88, [N/A], 1657, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.qwen",
+        "--dtype",
+        "float32",
+        "--configuration",
+        "reduce-overhead",
+        "--prompt-lengths",
+        "32,44,128,512",
+        "--decode-steps",
+        "8,32",
+        "--warmup",
+        "3",
+        "--iterations",
+        "10",
+        "--output-dir",
+        "artifacts/benchmark_runs/qwen_float32_reduce-overhead_1"
+      ],
+      "command": "python -m compilelab.qwen --dtype float32 --configuration reduce-overhead --prompt-lengths 32,44,128,512 --decode-steps 8,32 --warmup 3 --iterations 10 --output-dir artifacts/benchmark_runs/qwen_float32_reduce-overhead_1",
+      "status": "passed",
+      "result_sha256": "97bf97dab3af81a3b3b3b3e8dc08bbb9f93140a4e69b6c26c6d6f14461312868",
+      "result": "qwen_float32_reduce-overhead_1/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ],
+        "transformers": "5.11.0"
+      },
+      "study_status": "passed",
+      "backend_compilations": 6,
+      "recompile_events": [
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        },
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "tensor 'kwargs['past_key_values'].layers[0].keys' stride mismatch at index 1. expected 64, actual 2112",
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "qwen_bfloat16_no-cudagraphs_1",
+      "source_file": "compilelab/qwen.py",
+      "source_sha256": "6020eef77a0cd0688d701929ac6f588fc491a5a03cac015868418c792e60cd8a",
+      "returncode": 0,
+      "start_utc": "2026-10-05T18:11:29.984645+00:00",
+      "end_utc": "2026-10-05T18:14:00.107254+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P5, 48, 7.22, [N/A], 427, 810",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 53, 8.06, [N/A], 1492, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.qwen",
+        "--dtype",
+        "bfloat16",
+        "--configuration",
+        "no-cudagraphs",
+        "--prompt-lengths",
+        "32,44,128,512",
+        "--decode-steps",
+        "8,32",
+        "--warmup",
+        "3",
+        "--iterations",
+        "10",
+        "--attention-backend",
+        "math",
+        "--continue-on-mismatch",
+        "--output-dir",
+        "artifacts/benchmark_runs/qwen_bfloat16_no-cudagraphs_1"
+      ],
+      "command": "python -m compilelab.qwen --dtype bfloat16 --configuration no-cudagraphs --prompt-lengths 32,44,128,512 --decode-steps 8,32 --warmup 3 --iterations 10 --attention-backend math --continue-on-mismatch --output-dir artifacts/benchmark_runs/qwen_bfloat16_no-cudagraphs_1",
+      "status": "rejected",
+      "result_sha256": "edf12d9565775c56cd77d4831eae3a23ebfd7fe458a1825ada5a4844cb7f7f2a",
+      "result": "qwen_bfloat16_no-cudagraphs_1/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ],
+        "transformers": "5.11.0"
+      },
+      "study_status": "rejected",
+      "backend_compilations": 5,
+      "recompile_events": [
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        },
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "tensor 'kwargs['past_key_values'].layers[0].keys' stride mismatch at index 1. expected 64, actual 2112",
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "qwen_bfloat16_reduce-overhead_1",
+      "source_file": "compilelab/qwen.py",
+      "source_sha256": "6020eef77a0cd0688d701929ac6f588fc491a5a03cac015868418c792e60cd8a",
+      "returncode": 0,
+      "start_utc": "2026-10-05T18:14:00.163583+00:00",
+      "end_utc": "2026-10-05T18:16:45.263060+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 53, 8.06, [N/A], 1492, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 52, 7.97, [N/A], 1492, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.qwen",
+        "--dtype",
+        "bfloat16",
+        "--configuration",
+        "reduce-overhead",
+        "--prompt-lengths",
+        "32,44,128,512",
+        "--decode-steps",
+        "8,32",
+        "--warmup",
+        "3",
+        "--iterations",
+        "10",
+        "--attention-backend",
+        "math",
+        "--continue-on-mismatch",
+        "--output-dir",
+        "artifacts/benchmark_runs/qwen_bfloat16_reduce-overhead_1"
+      ],
+      "command": "python -m compilelab.qwen --dtype bfloat16 --configuration reduce-overhead --prompt-lengths 32,44,128,512 --decode-steps 8,32 --warmup 3 --iterations 10 --attention-backend math --continue-on-mismatch --output-dir artifacts/benchmark_runs/qwen_bfloat16_reduce-overhead_1",
+      "status": "rejected",
+      "result_sha256": "ef40014c2b8135dbe100173c455f121f74cb4d9385139e6207d301a64d6bf46c",
+      "result": "qwen_bfloat16_reduce-overhead_1/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ],
+        "transformers": "5.11.0"
+      },
+      "study_status": "rejected",
+      "backend_compilations": 6,
+      "recompile_events": [
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        },
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "tensor 'kwargs['past_key_values'].layers[0].keys' stride mismatch at index 1. expected 64, actual 2112",
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "qwen_float32_no-cudagraphs_2",
+      "source_file": "compilelab/qwen.py",
+      "source_sha256": "99cd03fb9f1c43f3c99f92c240b98042a11fa32ba7e1c97b06b27b4139da8eeb",
+      "returncode": 0,
+      "start_utc": "2026-10-05T17:47:35.405906+00:00",
+      "end_utc": "2026-10-05T17:51:15.011253+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 50, 8.84, [N/A], 1650, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 53, 9.04, [N/A], 1597, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.qwen",
+        "--dtype",
+        "float32",
+        "--configuration",
+        "no-cudagraphs",
+        "--prompt-lengths",
+        "32,44,128,512",
+        "--decode-steps",
+        "8,32",
+        "--warmup",
+        "3",
+        "--iterations",
+        "10",
+        "--output-dir",
+        "artifacts/benchmark_runs/qwen_float32_no-cudagraphs_2"
+      ],
+      "command": "python -m compilelab.qwen --dtype float32 --configuration no-cudagraphs --prompt-lengths 32,44,128,512 --decode-steps 8,32 --warmup 3 --iterations 10 --output-dir artifacts/benchmark_runs/qwen_float32_no-cudagraphs_2",
+      "status": "passed",
+      "result_sha256": "9e9562f3d4c76a02bab73dc45cd39e61a91b21a5bd03ab2226f3f857ed1ac693",
+      "result": "qwen_float32_no-cudagraphs_2/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ],
+        "transformers": "5.11.0"
+      },
+      "study_status": "passed",
+      "backend_compilations": 5,
+      "recompile_events": [
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        },
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "tensor 'kwargs['past_key_values'].layers[0].keys' stride mismatch at index 1. expected 64, actual 2112",
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "qwen_float32_reduce-overhead_2",
+      "source_file": "compilelab/qwen.py",
+      "source_sha256": "600759b8e1e72f646601cce29e8e515ea234f77fceb346d204a34b82e862f61a",
+      "returncode": 0,
+      "start_utc": "2026-10-05T18:04:17.288888+00:00",
+      "end_utc": "2026-10-05T18:08:12.147662+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 51, 9.10, [N/A], 1612, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 54, 9.35, [N/A], 1605, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.qwen",
+        "--dtype",
+        "float32",
+        "--configuration",
+        "reduce-overhead",
+        "--prompt-lengths",
+        "32,44,128,512",
+        "--decode-steps",
+        "8,32",
+        "--warmup",
+        "3",
+        "--iterations",
+        "10",
+        "--output-dir",
+        "artifacts/benchmark_runs/qwen_float32_reduce-overhead_2"
+      ],
+      "command": "python -m compilelab.qwen --dtype float32 --configuration reduce-overhead --prompt-lengths 32,44,128,512 --decode-steps 8,32 --warmup 3 --iterations 10 --output-dir artifacts/benchmark_runs/qwen_float32_reduce-overhead_2",
+      "status": "passed",
+      "result_sha256": "7f19914d67f45d1ef885bcd65d71bda610e20102023a8f7584bc991c07cd9d9d",
+      "result": "qwen_float32_reduce-overhead_2/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ],
+        "transformers": "5.11.0"
+      },
+      "study_status": "passed",
+      "backend_compilations": 6,
+      "recompile_events": [
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        },
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "tensor 'kwargs['past_key_values'].layers[0].keys' stride mismatch at index 1. expected 64, actual 2112",
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "qwen_bfloat16_no-cudagraphs_2",
+      "source_file": "compilelab/qwen.py",
+      "source_sha256": "6020eef77a0cd0688d701929ac6f588fc491a5a03cac015868418c792e60cd8a",
+      "returncode": 0,
+      "start_utc": "2026-10-05T18:16:45.314231+00:00",
+      "end_utc": "2026-10-05T18:19:10.296325+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 52, 8.08, [N/A], 1492, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 51, 8.04, [N/A], 1492, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.qwen",
+        "--dtype",
+        "bfloat16",
+        "--configuration",
+        "no-cudagraphs",
+        "--prompt-lengths",
+        "32,44,128,512",
+        "--decode-steps",
+        "8,32",
+        "--warmup",
+        "3",
+        "--iterations",
+        "10",
+        "--attention-backend",
+        "math",
+        "--continue-on-mismatch",
+        "--output-dir",
+        "artifacts/benchmark_runs/qwen_bfloat16_no-cudagraphs_2"
+      ],
+      "command": "python -m compilelab.qwen --dtype bfloat16 --configuration no-cudagraphs --prompt-lengths 32,44,128,512 --decode-steps 8,32 --warmup 3 --iterations 10 --attention-backend math --continue-on-mismatch --output-dir artifacts/benchmark_runs/qwen_bfloat16_no-cudagraphs_2",
+      "status": "rejected",
+      "result_sha256": "13ba7ee4a4343fa24efa7cb79ad31c457bc1283dbf3404bf8142f59160edbd52",
+      "result": "qwen_bfloat16_no-cudagraphs_2/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ],
+        "transformers": "5.11.0"
+      },
+      "study_status": "rejected",
+      "backend_compilations": 5,
+      "recompile_events": [
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        },
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "tensor 'kwargs['past_key_values'].layers[0].keys' stride mismatch at index 1. expected 64, actual 2112",
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "qwen_bfloat16_reduce-overhead_2",
+      "source_file": "compilelab/qwen.py",
+      "source_sha256": "6020eef77a0cd0688d701929ac6f588fc491a5a03cac015868418c792e60cd8a",
+      "returncode": 0,
+      "start_utc": "2026-10-05T18:19:10.361690+00:00",
+      "end_utc": "2026-10-05T18:21:53.606884+00:00",
+      "gpu_before": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 51, 8.04, [N/A], 1492, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "gpu_after": {
+        "fields": "name,driver_version,pstate,temperature_c,power_w,power_limit_w,sm_clock_mhz,memory_clock_mhz",
+        "value": "NVIDIA GeForce RTX 5050 Laptop GPU, 595.91.07, P4, 51, 8.12, [N/A], 1492, 9001",
+        "clocks_locked": false,
+        "assumption": "laptop GPU; display active; no power/clock settings modified"
+      },
+      "argv": [
+        "python",
+        "-m",
+        "compilelab.qwen",
+        "--dtype",
+        "bfloat16",
+        "--configuration",
+        "reduce-overhead",
+        "--prompt-lengths",
+        "32,44,128,512",
+        "--decode-steps",
+        "8,32",
+        "--warmup",
+        "3",
+        "--iterations",
+        "10",
+        "--attention-backend",
+        "math",
+        "--continue-on-mismatch",
+        "--output-dir",
+        "artifacts/benchmark_runs/qwen_bfloat16_reduce-overhead_2"
+      ],
+      "command": "python -m compilelab.qwen --dtype bfloat16 --configuration reduce-overhead --prompt-lengths 32,44,128,512 --decode-steps 8,32 --warmup 3 --iterations 10 --attention-backend math --continue-on-mismatch --output-dir artifacts/benchmark_runs/qwen_bfloat16_reduce-overhead_2",
+      "status": "rejected",
+      "result_sha256": "fb8aa665a3e0cedadac7281516572a9173753b57bd2f4847dc599d60fcce69f8",
+      "result": "qwen_bfloat16_reduce-overhead_2/results.json",
+      "environment": {
+        "python": "3.12.12",
+        "platform": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+        "torch": "2.12.0+cu130",
+        "torch_cuda_runtime": "13.0",
+        "device": "cuda",
+        "cuda_available": true,
+        "device_name": "NVIDIA GeForce RTX 5050 Laptop GPU",
+        "compute_capability": [
+          12,
+          0
+        ],
+        "transformers": "5.11.0"
+      },
+      "study_status": "rejected",
+      "backend_compilations": 6,
+      "recompile_events": [
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        },
+        {
+          "function": "wrapper",
+          "guard_failures": [
+            "tensor 'kwargs['past_key_values'].layers[0].keys' stride mismatch at index 1. expected 64, actual 2112",
+            "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,425 +1,230 @@
-# Torch Compile Internals
+# PyTorch Compiler & LLM Inference Performance Analysis
 
-A reproducible benchmark and graph-analysis suite for examining PyTorch 2
-compiler behavior on synthetic kernels and transformer components.
+A benchmark and graph-analysis suite for `torch.compile`, covering controlled
+tensor workloads, transformer model transformations, and Qwen2.5-0.5B-Instruct
+prefill and KV-cached decode. The project evaluates compiler-generated fusion,
+graph capture, runtime overhead, numerical agreement, and shape-dependent
+performance.
 
-The current implementation evaluates:
-
-- Dynamo graph capture and full-graph compatibility.
-- First-call compilation cost versus steady-state execution.
-- Numerical equivalence between eager and compiled execution.
-- Data-dependent control flow and graph fragmentation.
-- Compiler behavior on a gated transformer MLP.
-- Generated Inductor wrappers, external calls, Triton kernels, and launch counts.
-- Host enqueue time versus post-enqueue GPU completion time.
-- Guard failures, recompilation counts, and dynamic-shape specialization.
-- Reversible gated-MLP projection packing with state, graph, and GPU evidence.
-- A minimal pre-norm transformer block with RMSNorm, causal attention,
-  residual connections, and a gated MLP.
-- Whole-block versus regional compilation and compile-mode selection.
-- TorchAO INT8 and FP8 quantization with latency, storage, quality, and
-  generated-kernel analysis.
-
-All reported measurements include the workload shape, dtype, software version,
-hardware target, cache policy, and correctness result.
-
-## Results
-
-### Pointwise reduction
-
-The baseline combines bias addition, SiLU, multiplication, and reduction. Both
-CPU and GPU runs use float32 input with shape `[1024, 4096]`, 20 warm-up
-iterations, and 100 measured iterations.
-
-| Metric | RTX 5050 Laptop GPU | CPU |
-|---|---:|---:|
-| Dynamo graphs | 1 | 1 |
-| Maximum absolute error | 1.19e-7 | 3.58e-7 |
-| Eager median | 0.2332 ms | 7.5241 ms |
-| Compiled median | 0.1006 ms | 1.0567 ms |
-| Steady-state speedup | 2.32× | 7.12× |
-| First compiled call | 1.45 s | 4.37 s |
-| Estimated break-even | ~10,968 calls | ~676 calls |
-
-Artifacts:
-
-- GPU: [summary](artifacts/sample_gpu/summary.md), [raw
-  result](artifacts/sample_gpu/results.json), [FX
-  graph](artifacts/sample_gpu/dynamo_fx_graph.py)
-- CPU: [summary](artifacts/sample_cpu/summary.md), [raw
-  result](artifacts/sample_cpu/results.json), [FX
-  graph](artifacts/sample_cpu/dynamo_fx_graph.py)
-
-### Data-dependent control flow
-
-The graph-break case compares a Python branch on a tensor value with an
-equivalent `torch.cond` implementation.
-
-| Result | Python branch | `torch.cond` |
-|---|---:|---:|
-| Positive and negative outputs verified | yes | yes |
-| Graphs captured across both paths | 3 | 1 |
-| Compatible with `fullgraph=True` | no | yes |
-
-The Python implementation produces a predicate graph and separate continuation
-graphs for each branch. The `torch.cond` implementation represents the
-conditional inside one captured graph.
-
-Artifacts: [summary](artifacts/graph_break_case/summary.md), [Python graph
-regions](artifacts/graph_break_case/python_if_graphs.py), [`torch.cond`
-graph](artifacts/graph_break_case/torch_cond_graph.py)
-
-### Gated transformer MLP
-
-The transformer workload implements:
-
-```text
-down_proj(silu(gate_proj(x)) * up_proj(x))
+```mermaid
+flowchart LR
+    P[Python model] --> D[Dynamo: FX graphs and guards]
+    D --> A[AOTAutograd: forward graph processing]
+    A --> I[Inductor: lowering and code generation]
+    I --> K[Triton kernels and external library calls]
+    K --> T[CUDA execution trace]
 ```
 
-The benchmark uses a 4,718,592-parameter MLP, float16 input with shape
-`[4, 128, 768]`, hidden dimension 2048, and an RTX 5050 Laptop GPU.
+The workloads use inference mode. Generated kernels are produced by Inductor;
+projection packing is an explicit model transformation implemented in the suite.
 
-| Metric | Result |
-|---|---:|
-| Dynamo graphs | 1 |
-| Maximum absolute error | 2.44e-4 |
-| Eager median | 0.2402 ms |
-| Compiled median | 0.2897 ms |
-| Steady-state speedup | 0.829× |
-| First compiled call | 1.55 s |
+## Measurements
 
-Compiled execution was 17% slower in the primary run and 19% slower in a
-fresh-process repeat. A separate 500-iteration, alternating-order analysis
-described below reproduced the regression while isolating its runtime
-components.
+The [results table](artifacts/benchmark_results/results.md) includes raw timing
+samples, correctness checks, kernel counts, and shape coverage.
+[Execution metadata](artifacts/benchmark_results/evidence.json) records measured
+source hashes, hardware/software details, and portable replay commands.
 
-Artifacts: [summary](artifacts/sample_mlp_gpu/summary.md), [primary
-result](artifacts/sample_mlp_gpu/results.json), [repeat
-result](artifacts/sample_mlp_gpu/repeat_results.json), [FX
-graph](artifacts/sample_mlp_gpu/dynamo_fx_graph.py)
+Compiler and Qwen measurements below use an RTX 5050 Laptop GPU and PyTorch
+`2.12.0+cu130`. Timing is synchronized and collected outside profiler capture.
 
-### Inductor code generation and runtime breakdown
+| Workload | Observation | Measurement scope |
+|---|---|---|
+| FP32 pointwise reduction `[1024,4096]` | 2.07–2.12× steady-state ratio | Three fresh processes; 100 samples per variant |
+| Pointwise first-call cost | 1.71–4.69 s; 14,072–38,625 estimated break-even calls | First call includes capture, compilation, allocation, and execution |
+| FP16 gated MLP `[4,128,768]` | 13.1–16.2% higher compiled latency | 4,718,592 parameters; three fresh-process trials |
+| Gated MLP generated execution | 5 → 4 GPU kernels; 278.01 → 315.07 µs | Separate 500-sample runtime decomposition |
+| Tensor-dependent control flow | 3 FX regions → 1 graph with `torch.cond` | Both predicates and six Inductor validation cases |
+| Qwen FP32, 44-token prefill | 1,385 → 482 GPU kernels; 30.19–32.26 → 26.37–26.39 ms | Two trials; batch one; CUDA Graphs disabled |
+| Qwen FP32, eight decode steps | 8,968 → 3,280 GPU kernels; 97.68–97.88 → 66.80–67.28 ms | Same reference tokens and a fresh KV cache per request |
 
-The generated wrapper contains three external `mm` calls and one generated
-Triton kernel. Inductor leaves the gate, up, and down projections on external
-GEMM paths while fusing SiLU and multiplication into a single in-place kernel.
+These ranges describe measured trial variation, not confidence intervals.
+Smaller pointwise and batch-one MLP workloads also regress. Fewer kernels do not
+guarantee lower latency; see [MLP runtime analysis](docs/mlp_regression.md).
 
-| Structural result | Eager | Compiled |
-|---|---:|---:|
-| Kernel launches per invocation | 5 | 4 |
-| External GEMM calls | 3 | 3 |
-| Pointwise kernels | 2 | 1 |
+### Qwen configurations and correctness
 
-| Median runtime component | Eager | Compiled |
-|---|---:|---:|
-| Host enqueue | 51.21 µs | 94.53 µs |
-| Post-enqueue completion wait | 230.55 µs | 222.00 µs |
-| Synchronized total | 280.35 µs | 316.98 µs |
+The sweep covers prompt lengths 32, 44, 128, and 512, with 8- and 32-step
+continuations. Eager and compiled paths use identical weights, prompt IDs, and
+replayed reference tokens. Prefill and decode are measured separately.
 
-The compiled path reduces launch count and post-enqueue completion time, but
-its additional host enqueue cost is larger than the completion-time reduction.
-The resulting synchronized speedup is `0.884×`, or an 11.6% regression, for
-this software, hardware, dtype, and shape.
+- `no-cudagraphs` sets `triton.cudagraphs=False` to isolate compiler code
+  generation and ordinary dispatch.
+- `reduce-overhead` requests CUDA Graph support and counts actual replay calls.
+  Logits and DynamicCache K/V are cloned outside compilation for both variants
+  to preserve output ownership. Those copies are included in the measured phase.
 
-Artifacts: [analysis](artifacts/mlp_codegen/summary.md), [raw
-result](artifacts/mlp_codegen/results.json), [sanitized generated
-wrapper](artifacts/mlp_codegen/inductor_output_code.py)
+FP32 uses `atol=rtol=1e-3` with TF32 disabled and passed every tested case in both
+configurations. BF16 uses `atol=rtol=2e-2`, preserves intermediate precision casts,
+and pins math attention equally for both variants. All 48 BF16 cases failed the
+logit gate; eight also had greedy-token disagreement. Rejected cases have no
+accepted steady-state timing or launch-count comparison. See the
+[numerical results](artifacts/benchmark_results/results.md#numerical-rejections).
 
-### Gated MLP projection packing
+Decode excludes cache-prefill setup, token selection, tokenization, and text
+decoding. These are model-forward measurements, not complete serving TTFT/TPOT.
+The [Qwen trace analysis](docs/qwen_trace_analysis.md) distinguishes normalization
+and SiLU/multiply fusion from attention-backend changes.
 
-The first model transformation concatenates `gate_proj` and `up_proj` weights
-once during model conversion. The packed module replaces two equal-size input
-projections with one projection producing twice the hidden dimension, then uses
-view-based splitting before SiLU and multiplication. The conversion is
-reversible and retains the original 4,718,592 parameters.
+### Transformer optimization studies
 
-| Structural metric | Original | Packed |
-|---|---:|---:|
-| External GEMM calls in generated wrapper | 3 | 2 |
-| Compiled CUDA launches, representative shape | 4 | 3 |
-| Eager CUDA launches, representative shape | 5 | 4 |
+The suite also evaluates reversible projection packing, compilation boundaries,
+RMSNorm lowering, and TorchAO quantization on a minimal pre-norm transformer
+containing RMSNorm, causal attention, residual connections, and a gated MLP.
 
-| Input shape | Original compiled | Packed compiled | Speedup |
-|---|---:|---:|---:|
-| `[1, 1, 768]` | 102.23 µs | 87.35 µs | 1.170× |
-| `[1, 128, 768]` | 138.03 µs | 125.26 µs | 1.102× |
-| `[4, 128, 768]` | 342.73 µs | 329.62 µs | 1.040× |
+| Study | Measured result | Evidence |
+|---|---|---|
+| Gated-MLP gate/up packing | 3 → 2 external GEMMs; 1.04–1.17× versus unpacked compiled execution | [Analysis](artifacts/mlp_projection_packing/summary.md) |
+| Transformer Q/K/V and gate/up packing | 7 → 4 external GEMMs; 12 → 9 profiled CUDA kernels | [Analysis](artifacts/transformer_optimization/summary.md) |
+| Whole-block versus regional compilation | About 1.4× faster for the two batch-one shapes; tied at `[4,128,768]` | [Boundary comparison](artifacts/transformer_optimization/summary.md#compilation-boundary) |
+| Dynamic INT8 and FP8 | About 2× lower linear-weight storage; 1.38× and 1.50× at `[4,128,768]` versus compiled BF16 | [Quality and latency](artifacts/transformer_quantization/summary.md) |
 
-Packing improved compiled latency at all three measured shapes and removed one
-CUDA launch per invocation. At the representative `[4, 128, 768]` shape, lower
-host enqueue time outweighed a longer GPU completion wait. Packing did not
-improve eager latency, and packed compiled execution did not beat original eager
-execution; the measured result is specifically a comparison between the packed
-and original compiled paths.
-
-Artifacts: [analysis](artifacts/mlp_projection_packing/summary.md), [raw
-result](artifacts/mlp_projection_packing/results.json), [before/after Dynamo
-graphs](artifacts/mlp_projection_packing/dynamo_graphs.py), [original
-wrapper](artifacts/mlp_projection_packing/original_inductor.py), [packed
-wrapper](artifacts/mlp_projection_packing/packed_inductor.py)
-
-### Minimal transformer block
-
-The block combines two RMSNorm layers, causal scaled-dot-product attention,
-residual connections, and a gated MLP at model dimension 768, 12 attention
-heads, and hidden dimension 2048. A reversible conversion packs Q/K/V and the
-MLP gate/up projections while preserving parameters and outputs.
-
-| Shape | Original eager | Original compiled | Packed compiled | Best packed mode | Best latency |
-|---|---:|---:|---:|---|---:|
-| `[1, 1, 768]` | 147.41 µs | 183.34 µs | 162.28 µs | `max-autotune` | 101.59 µs |
-| `[1, 128, 768]` | 169.83 µs | 217.00 µs | 185.86 µs | `reduce-overhead` | 175.95 µs |
-| `[4, 128, 768]` | 469.52 µs | 484.15 µs | 475.61 µs | `default` | 475.61 µs |
-
-Packing reduced external GEMMs from seven to four and profiled CUDA launches
-from twelve to nine at the representative shape. Default compiled packing was
-1.130×, 1.168×, and 1.018× faster than the original compiled block. Compiling
-the entire packed block was about 1.4× faster than compiling attention and MLP
-as separate regions for the two batch-one workloads, while the approaches tied
-at `[4, 128, 768]`. Manual RMSNorm decomposition did not reduce the generated
-launch count.
-
-Artifacts: [analysis](artifacts/transformer_optimization/summary.md), [raw
-result](artifacts/transformer_optimization/results.json), [before/after Dynamo
-graphs](artifacts/transformer_optimization/dynamo_graphs.py), [original
-wrapper](artifacts/transformer_optimization/original_inductor.py), [packed
-wrapper](artifacts/transformer_optimization/packed_inductor.py)
-
-### INT8 and FP8 quantization
-
-TorchAO quantization is applied to the packed BF16 transformer block before
-full-graph compilation with `max-autotune`. Each strategy runs in an isolated
-process and Inductor cache.
-
-| Strategy | Storage | `[1, 1, 768]` | `[1, 128, 768]` | `[4, 128, 768]` |
-|---|---:|---:|---:|---:|
-| BF16 | 13.50 MiB | 100.78 µs | 180.66 µs | 471.77 µs |
-| INT8 weight-only | 6.78 MiB | 118.59 µs | 9996.52 µs | 39937.19 µs |
-| Dynamic INT8 | 6.78 MiB | 109.65 µs | 173.87 µs | 340.93 µs |
-| FP8 weight-only | 6.78 MiB | 107.41 µs | 214.44 µs | 518.04 µs |
-| Dynamic FP8 | 6.75 MiB | 115.49 µs | 172.02 µs | 314.74 µs |
-
-Dynamic INT8 achieved 1.039× and 1.384× prefill speedups; dynamic FP8 achieved
-1.050× and 1.499×. None of the quantized paths improved single-token decode.
-All quantized models reduced storage by approximately 2× and exceeded 0.9998
-cosine similarity. The slow INT8 weight-only prefill path uses
-`_weight_int8pack_mm` on this backend and demonstrates that reduced precision
-does not guarantee lower latency.
-
-Artifacts: [analysis](artifacts/transformer_quantization/summary.md), [raw
-result](artifacts/transformer_quantization/results.json), [BF16
-wrapper](artifacts/transformer_quantization/bf16_inductor.py), [INT8
-wrapper](artifacts/transformer_quantization/int8_inductor.py), [FP8
-wrapper](artifacts/transformer_quantization/fp8_inductor.py)
-
-### Dynamic-shape specialization
-
-A controlled gated-MLP experiment varies sequence length across
-`[32, 64, 128, 32, 64]`. Each policy runs in a separate process with a
-pass-through backend so the result isolates Dynamo graph capture from Inductor
-code generation.
-
-| Policy | `dynamic` argument | Graph compilations | Guard-triggered recompiles |
-|---|---:|---:|---:|
-| Static | `False` | 3 | 2 |
-| Automatic | `None` | 2 | 1 |
-| Upfront dynamic | `True` | 1 | 0 |
-
-Static mode creates one graph per unique sequence length. Automatic mode first
-captures a specialized graph, then recompiles once with a symbolic sequence
-dimension. Upfront dynamic mode captures the symbolic graph immediately. When
-64 and 128 are repeated, all policies reuse their existing cached graphs.
-
-Artifacts: [analysis](artifacts/dynamic_shapes/summary.md), [raw
-result](artifacts/dynamic_shapes/results.json), [sanitized recompile
-log](artifacts/dynamic_shapes/recompiles.txt), [automatic-mode FX
-graphs](artifacts/dynamic_shapes/automatic_graphs.py)
-
-## Methodology
-
-- Eager output is computed before compilation and used as the correctness
-  reference.
-- Compiled output must satisfy dtype-appropriate `torch.allclose` tolerances
-  before timing results are written.
-- CUDA measurements synchronize before and after each timed invocation.
-- First-call latency is recorded separately from steady-state latency.
-- Inductor uses a fresh temporary cache by default.
-- Latency reports include median, p90, minimum, and maximum values.
-- Break-even estimates compare observed first-call overhead with per-call
-  steady-state savings.
-- FX graphs are collected with a custom `torch.compile` backend used only for
-  inspection.
-- Generated wrapper calls are classified directly from an isolated Inductor
-  cache; absolute cache paths are removed from published source artifacts.
-- CUDA profiler events verify eager and compiled launch counts.
-- Runtime variants alternate measurement order and separate host enqueue from
-  post-enqueue completion wait.
-- Dynamic-shape policies run in isolated processes with `TORCH_LOGS=recompiles`;
-  a pass-through backend counts graph compilations and every output is checked
-  against eager execution.
-- Projection packing uses a one-time state conversion, equal parameter counts,
-  identical inputs, isolated Inductor caches, alternating measurement order,
-  multiple shape regimes, and eager/compiled correctness checks.
-- Transformer strategies run in fresh processes and isolated Inductor caches;
-  the mode matrix covers default, CUDA-graph-oriented, autotuned, no-CUDA-graph,
-  and shape-padding configurations.
-- Quantization reports model storage, cosine similarity, SQNR, generated external
-  calls, and latency against a compiled BF16 reference.
-
-The included results are specific to the recorded hardware, software, dtype,
-and input shape. They are not portability or production-performance claims.
+Packing ratios compare compiled variants, not a guaranteed win over eager.
+Quantization did not improve the sequence-length-one case. Each study records
+its own environment and baseline; results are not hardware-independent claims.
 
 ## Installation
 
-Python 3.11+ and PyTorch 2.x are required. Install the appropriate PyTorch build
-for the target CPU or CUDA environment before installing this package.
+Python 3.11+ and a PyTorch build appropriate for the target CPU or CUDA device
+are required. Qwen and generated CUDA-kernel analysis require a CUDA GPU.
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-
 # Install PyTorch for the target platform first.
-pip install -e ".[dev]"
+pip install -e ".[dev,llm]"
 python -m pytest
 ```
 
-Install TorchAO for the quantization experiment:
+For quantization, install the optional dependency:
 
 ```bash
 pip install -e ".[quantization]"
 ```
 
-## Usage
-
-Pointwise baseline:
+Cache the pinned Qwen revision once:
 
 ```bash
-python -m compilelab \
-  --device auto \
-  --shape 1024,4096 \
-  --warmup 20 \
-  --iterations 100 \
-  --output-dir artifacts/sample_run
+python -c 'from huggingface_hub import snapshot_download; snapshot_download("Qwen/Qwen2.5-0.5B-Instruct", revision="7ae557604adf67be50417f59c2c2f167def9a775")'
 ```
 
-Graph-break analysis:
+## Reproduce the benchmark suite
 
 ```bash
-python -m compilelab.graph_break \
-  --device cpu \
-  --output-dir artifacts/graph_break_case
+python -m compilelab.experiments \
+  --suite all --trials 3 --qwen-trials 2 \
+  --prompt-lengths 32,44,128,512 --decode-steps 8,32 \
+  --output-dir artifacts/benchmark_runs
+
+python -m compilelab.evidence \
+  --run-dir artifacts/benchmark_runs \
+  --output-dir artifacts/benchmark_results
 ```
 
-Gated MLP benchmark:
+Workers execute serially in fresh processes with private Inductor and Triton
+caches. The harness records exact invocation arguments, raw samples, source
+hashes, failures, and GPU clock/power snapshots without changing device settings.
+Large traces, worker source copies, and logs remain in the ignored run directory;
+the exporter retains results, representative graphs/wrappers, and replay metadata.
+
+Use `--suite micro` or `--suite qwen` for a subset. `--resume` skips completed
+workers in the specified run directory. BF16 accuracy coverage uses
+`--continue-on-mismatch`; it records `study_status="rejected"` and skips rejected
+performance measurements. Unexpected runtime errors exit nonzero.
+
+## Individual workflows
+
+Pointwise benchmark and strict control-flow capture:
 
 ```bash
-python -m compilelab \
-  --workload gated-mlp \
-  --device cuda \
-  --dtype float16 \
-  --batch-size 4 \
-  --sequence-length 128 \
-  --model-dim 768 \
-  --hidden-dim 2048 \
-  --warmup 20 \
-  --iterations 100 \
-  --output-dir artifacts/sample_mlp_gpu
+python -m compilelab --device cuda --shape 1024,4096 \
+  --warmup 20 --iterations 100 --output-dir artifacts/pointwise_run
+
+python -m compilelab.graph_break --device cpu \
+  --output-dir artifacts/control_flow_run
 ```
 
-Generated-code and runtime analysis:
+Gated-MLP generated code and runtime decomposition:
 
 ```bash
-python -m compilelab.codegen \
-  --dtype float16 \
-  --batch-size 4 \
-  --sequence-length 128 \
-  --model-dim 768 \
-  --hidden-dim 2048 \
-  --warmup 50 \
-  --iterations 500 \
-  --profile-iterations 20 \
-  --output-dir artifacts/mlp_codegen
+python -m compilelab.codegen --dtype float16 \
+  --batch-size 4 --sequence-length 128 --model-dim 768 --hidden-dim 2048 \
+  --warmup 50 --iterations 500 --profile-iterations 20 \
+  --output-dir artifacts/mlp_codegen_run
 ```
 
-Dynamic-shape specialization analysis:
+Qwen prefill and KV-cached decode:
 
 ```bash
-python -m compilelab.dynamic_shapes \
-  --sequence-lengths 32,64,128,32,64 \
-  --model-dim 64 \
-  --hidden-dim 128 \
-  --output-dir artifacts/dynamic_shapes
+python -m compilelab.qwen --dtype float32 --configuration no-cudagraphs \
+  --prompt-lengths 44 --decode-steps 8 --warmup 3 --iterations 10 \
+  --output-dir artifacts/qwen_run
 ```
 
-Gated MLP projection-packing analysis:
+Eager and compiled Torch Profiler traces:
 
 ```bash
-python -m compilelab.projection_packing \
-  --cases 1x1,1x128,4x128 \
-  --dtype float16 \
-  --model-dim 768 \
-  --hidden-dim 2048 \
-  --warmup 50 \
-  --iterations 500 \
-  --output-dir artifacts/mlp_projection_packing
+python -m compilelab.profiler_trace --workload gated-mlp --device cuda \
+  --dtype float16 --batch-size 4 --sequence-length 128 \
+  --model-dim 768 --hidden-dim 2048 --warmup 20 --iterations 10 \
+  --output-dir artifacts/profiler_run
 ```
 
-Minimal transformer optimization analysis:
+Open the eager/compiled JSON traces in Perfetto. Compilation and warmup finish
+before capture. `profile_metadata.json` records numerical checks, kernel names,
+and counts; operator tables contain CPU/CUDA aggregates. Profiler durations
+include instrumentation overhead and are not the benchmark latency result.
+Use `--variant eager` or `--variant compiled` to capture one path, and
+`--no-profile-memory` for lighter instrumentation.
+
+Dynamic-shape capture and model optimization:
 
 ```bash
-python -m compilelab.transformer_optimization \
-  --cases 1x1,1x128,4x128 \
-  --model-dim 768 \
-  --num-heads 12 \
-  --hidden-dim 2048 \
-  --warmup 30 \
-  --iterations 300 \
-  --output-dir artifacts/transformer_optimization
+python -m compilelab.dynamic_shapes --sequence-lengths 32,64,128,32,64 \
+  --output-dir artifacts/shape_run
+
+python -m compilelab.projection_packing --cases 1x1,1x128,4x128 \
+  --output-dir artifacts/packing_run
+
+python -m compilelab.transformer_optimization --cases 1x1,1x128,4x128 \
+  --output-dir artifacts/transformer_run
+
+python -m compilelab.quantization --cases 1x1,1x128,4x128 \
+  --output-dir artifacts/quantization_run
 ```
-
-Transformer quantization analysis:
-
-```bash
-python -m compilelab.quantization \
-  --cases 1x1,1x128,4x128 \
-  --model-dim 768 \
-  --num-heads 12 \
-  --hidden-dim 2048 \
-  --warmup 30 \
-  --iterations 300 \
-  --output-dir artifacts/transformer_quantization
-```
-
-Artifact directories contain:
-
-- `results.json`: environment, configuration, correctness, and measured data.
-- `summary.md`: formatted result summary.
-- Case-specific FX graphs, generated wrappers, or sanitized compiler logs.
 
 ## Repository structure
 
 ```text
 compilelab/
-  benchmark.py       Benchmark runner and artifact generation
-  codegen.py         Inductor wrapper and runtime analysis
-  dynamic_shapes.py  Guard and shape-specialization analysis
-  graph_break.py     Data-dependent control-flow experiment
-  quantization.py    TorchAO INT8 and FP8 comparison
-  projection_packing.py  Gated-MLP state conversion and GPU comparison
-  transformer.py     Minimal and projection-packed transformer blocks
-  transformer_optimization.py  Compile-mode and fusion analysis
-  workload.py        Pointwise and gated-MLP workloads
-tests/
-  test_compilelab.py Correctness and graph-capture tests
-artifacts/           Curated benchmark and graph-capture results
+  workload.py                 Pointwise, gated-MLP, and packed-MLP models
+  benchmark.py                Correctness, latency samples, and amortization
+  graph_break.py              Python branching versus torch.cond capture
+  codegen.py                  Generated wrappers and runtime decomposition
+  profiler_trace.py           Eager/compiled Chrome trace export
+  trace_analysis.py           GPU kernels, intervals, and graph-replay counts
+  dynamic_shapes.py           Guards and shape specialization
+  qwen.py                     Fixed-token prefill and KV-cached decode
+  experiments.py              Fresh-process benchmark harness
+  evidence.py                 Result tables and portable replay metadata
+  projection_packing.py       Reversible gate/up projection conversion
+  transformer.py              Minimal and projection-packed transformer models
+  transformer_optimization.py Compilation boundaries and mode selection
+  quantization.py             TorchAO INT8/FP8 comparisons
+docs/                         Methodology and measured performance analysis
+tests/                        Model, capture, trace, and export checks
+artifacts/benchmark_results/   Curated compiler and Qwen measurements
 ```
 
-## Current scope
+See [methodology and code walkthrough](docs/inference_performance.md),
+[MLP regression analysis](docs/mlp_regression.md), and
+[Qwen trace analysis](docs/qwen_trace_analysis.md).
 
-This repository currently covers compiler capture, graph breaks, timing
-methodology, generated-code inspection, launch profiling, dynamic-shape
-specialization, transformer projection packing, compilation boundaries,
-compile-mode selection, RMSNorm lowering, and TorchAO INT8/FP8 quantization. It
-does not currently cover sparsity, full-model evaluation, kernel-level Nsight
-analysis, training optimization, or production inference integration.
+## Measurement limits
+
+Clock/power settings are uncontrolled and the laptop GPU drives the display.
+Inference correctness checks cover tested logits or block outputs, not task-level
+model quality. Kernel counts exclude annotations, copies, and memsets. Trace
+activity coverage is not hardware occupancy or measured memory bandwidth.
+The suite does not implement production serving, continuous batching,
+distributed inference, training optimization, or custom-authored fusion kernels.

@@ -1,0 +1,15 @@
+[
+  {
+    "function": "wrapper",
+    "guard_failures": [
+      "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+    ]
+  },
+  {
+    "function": "wrapper",
+    "guard_failures": [
+      "tensor 'kwargs['past_key_values'].layers[0].keys' stride mismatch at index 1. expected 64, actual 2112",
+      "len(kwargs) == 2                                         # output = func(self, *args, **kwargs)  # transformers/utils/generic.py:907 in wrapper"
+    ]
+  }
+]
